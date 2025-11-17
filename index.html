@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>El Manitas Informático | Informático y manitas en Toledo y pueblos</title>
+
+    <!-- Metadatos para SEO -->
+    <meta name="description" content="Reparación de ordenadores, puesta a punto de PC y pequeños arreglos del hogar en Toledo y alrededores. Informático y manitas a domicilio con precios orientativos claros y trato profesional." />
+    <meta name="keywords" content="informático a domicilio, manitas, reparación de ordenadores, Toledo, pequeños arreglos, montaje de muebles, mantenimiento PC" />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://www.elmanitasinformatico.es/" />
+
+    <!-- Open Graph para redes sociales -->
+    <meta property="og:title" content="El Manitas Informático | Informático y manitas en Toledo y pueblos" />
+    <meta property="og:description" content="Informática y pequeños arreglos del hogar en Toledo y alrededores. Pide presupuesto sin compromiso." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.elmanitasinformatico.es/" />
+    <meta property="og:image" content="pc_repair_hero.jpg" />
+
+    <!-- Estructura de datos para Google (Schema.org) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "El Manitas Informático",
+      "image": "pc_repair_hero.jpg",
+      "logo": "logo-manitas.png",
+      "telephone": "+34 629 560 729",
+      "url": "https://www.elmanitasinformatico.es/",
+      "priceRange": "€€",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Toledo",
+        "addressRegion": "Castilla-La Mancha",
+        "addressCountry": "ES"
+      },
+      "areaServed": "Toledo y pueblos cercanos",
+      "description": "Reparación de ordenadores, puesta a punto de PC y pequeños arreglos del hogar. Informático y manitas a domicilio en Toledo y pueblos."
+    }
+    </script>
+
+    <style>
+        /* Paleta de colores y variables para reutilizar */
+        :root {
+            --color-bg: #0f172a;
+            --color-bg-soft: #111827;
+            --color-accent: #22c55e;
+            --color-accent-soft: #16a34a;
+            --color-text: #f9fafb;
+            --color-muted: #9ca3af;
+            --color-card: #020617;
+            --color-border: #1f2937;
+            --radius-lg: 18px;
+            --radius-full: 999px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
+            color: var(--color-text);
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .page {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 16px 16px 40px;
+        }
+
+        /* Cabecera */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0 20px;
+            gap: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            /* Aún más grande para que sea protagonista */
+            width: 96px;
+            height: 96px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 2px solid var(--color-border);
+        }
+
+        .brand-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-name {
+            font-weight: 700;
+            /* Hacemos el nombre más grande para que destaque como protagonista */
+            font-size: 1.75rem;
+            letter-spacing: 0.02em;
+        }
+
+        /* Estilo del símbolo de marca (TM/®) para que aparezca pequeño y elevado al lado del nombre */
+        .brand-name .trademark {
+            font-size: 0.6em;
+            vertical-align: super;
+            margin-left: 4px;
+        }
+
+        .brand-sub {
+            font-size: 0.8rem;
+            color: var(--color-muted);
+        }
+
+        .header-contact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .badge-pill {
+            border-radius: var(--radius-full);
+            border: 1px solid var(--color-border);
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            color: var(--color-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .badge-pill strong {
+            color: var(--color-text);
+        }
+
+        /* HERO */
+        .hero {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+            gap: 24px;
+            align-items: center;
+        }
+
+        .hero-left {
+            padding: 18px;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98));
+            border: 1px solid rgba(55, 65, 81, 0.7);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: var(--radius-full);
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(34, 197, 94, 0.28);
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--color-muted);
+            margin-bottom: 10px;
+        }
+
+        .hero-pill strong {
+            color: var(--color-text);
+            font-weight: 600;
+        }
+
+        .hero h1 {
+            /* Incrementamos el tamaño del título para un impacto visual mayor */
+            font-size: clamp(2rem, 3vw + 1rem, 3.2rem);
+            line-height: 1.15;
+            margin-bottom: 10px;
+        }
+
+        .hero h1 span.highlight {
+            color: var(--color-accent);
+        }
+
+        .hero-sub {
+            font-size: 0.95rem;
+            color: var(--color-muted);
+            max-width: 40rem;
+            margin-bottom: 16px;
+        }
+
+        .hero-sub strong {
+            color: var(--color-text);
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .btn {
+            border-radius: var(--radius-full);
+            border: none;
+            outline: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            padding: 10px 18px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease, opacity 0.15s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+            color: #022c22;
+            box-shadow: 0 12px 26px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 16px 30px rgba(16, 185, 129, 0.45);
+        }
+
+        .btn-outline {
+            background: rgba(15, 23, 42, 0.7);
+            color: var(--color-text);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+        }
+
+        .btn-outline:hover {
+            background: rgba(15, 23, 42, 0.95);
+            transform: translateY(-1px);
+        }
+
+        .hero-note {
+            font-size: 0.8rem;
+            color: var(--color-muted);
+        }
+
+        .hero-note strong {
+            color: var(--color-text);
+        }
+
+        /* Imagen grande en hero-right */
+        .hero-right {
+            padding: 0;
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            background: rgba(15, 23, 42, 0.96);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.9);
+            overflow: hidden;
+            /* Convertimos este contenedor en flex para que la imagen y el contenido se acomoden en columna */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Contenedor para la imagen principal con proporción fija que evita que el contenido se desplace al cargar */
+        .hero-image-container {
+            width: 100%;
+            aspect-ratio: 3 / 2;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .hero-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .hero-content {
+            padding: 16px;
+        }
+
+        .hero-right-header {
+            font-size: 0.85rem;
+            color: var(--color-muted);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .hero-card {
+            border-radius: 14px;
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            background: rgba(15, 23, 42, 0.96);
+            padding: 12px 12px 10px;
+            margin-bottom: 8px;
+        }
+
+        .hero-card-title {
+            font-size: 0.85rem;
+            color: var(--color-muted);
+            margin-bottom: 4px;
+        }
+
+        .hero-card-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .hero-label {
+            font-size: 0.75rem;
+            color: var(--color-muted);
+        }
+
+        .hero-price {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .hero-chip-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .hero-chip {
+            font-size: 0.75rem;
+            padding: 4px 9px;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            background: rgba(15, 23, 42, 0.95);
+            color: var(--color-muted);
+        }
+
+        .hero-footer {
+            margin-top: 12px;
+            font-size: 0.78rem;
+            color: var(--color-muted);
+        }
+
+        /* Secciones y tarjetas */
+        section {
+            margin-top: 28px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--color-muted);
+            margin-bottom: 14px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            padding: 14px 14px 12px;
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.65);
+        }
+
+        .card h3 {
+            font-size: 0.98rem;
+            margin-bottom: 6px;
+        }
+
+        .card small {
+            font-size: 0.8rem;
+            color: var(--color-muted);
+        }
+
+        .card ul {
+            list-style: none;
+            margin-top: 8px;
+        }
+
+        .card ul li {
+            font-size: 0.9rem;
+            padding: 4px 0;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .card ul li::before {
+            content: "•";
+            color: var(--color-accent);
+            margin-top: 2px;
+        }
+
+        .taglist {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            color: var(--color-muted);
+        }
+
+        .info-note {
+            font-size: 0.8rem;
+            color: var(--color-muted);
+            margin-top: 8px;
+        }
+
+        /* Precios */
+        .prices-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+            gap: 14px;
+        }
+
+        .price-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.9rem;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(55, 65, 81, 0.9);
+        }
+
+        .price-label {
+            font-weight: 500;
+        }
+
+        .price-value {
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        .price-detail {
+            font-size: 0.8rem;
+            color: var(--color-muted);
+        }
+
+        /* Zona de servicio */
+        .zone-box {
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            padding: 12px 14px;
+            font-size: 0.9rem;
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.65);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .zone-pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .zone-pill {
+            font-size: 0.78rem;
+            border-radius: var(--radius-full);
+            padding: 4px 10px;
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            color: var(--color-muted);
+        }
+
+        /* Pasos de trabajo */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            font-size: 0.82rem;
+        }
+
+        .step {
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: 14px;
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            padding: 8px 9px;
+        }
+
+        .step-num {
+            font-size: 0.78rem;
+            color: var(--color-muted);
+            margin-bottom: 2px;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .step-text {
+            color: var(--color-muted);
+        }
+
+        /* Razones para elegirnos */
+        .why-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            font-size: 0.85rem;
+        }
+
+        .why-item {
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: 14px;
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            padding: 8px 9px;
+        }
+
+        .why-item strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .why-item p {
+            color: var(--color-muted);
+        }
+
+        /* FAQ */
+        .faq-list {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+            gap: 12px;
+            font-size: 0.85rem;
+        }
+
+        .faq-item {
+            border-radius: 14px;
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            background: rgba(15, 23, 42, 0.96);
+            padding: 9px 10px;
+        }
+
+        .faq-item h4 {
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .faq-item p {
+            color: var(--color-muted);
+        }
+
+        /* Contacto */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+            gap: 16px;
+        }
+
+        .contact-box {
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            padding: 14px;
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.65);
+            font-size: 0.9rem;
+        }
+
+        .contact-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .contact-label {
+            color: var(--color-muted);
+            font-size: 0.85rem;
+        }
+
+        .contact-value {
+            font-weight: 600;
+        }
+
+        .contact-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        form {
+            display: grid;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 0.8rem;
+            color: var(--color-muted);
+        }
+
+        input, textarea {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            background: rgba(15, 23, 42, 0.95);
+            color: var(--color-text);
+            padding: 7px 9px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: #6b7280;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-note {
+            font-size: 0.78rem;
+            color: var(--color-muted);
+        }
+
+        footer {
+            margin-top: 28px;
+            border-top: 1px solid rgba(31, 41, 55, 0.9);
+            padding-top: 12px;
+            font-size: 0.75rem;
+            color: var(--color-muted);
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Adaptación responsive */
+        @media (max-width: 880px) {
+            .hero {
+                grid-template-columns: minmax(0, 1fr);
+            }
+            .hero-right {
+                order: -1;
+            }
+            .grid-2,
+            .prices-grid,
+            .faq-list,
+            .contact-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+            .steps {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .why-list {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .header-contact {
+                justify-content: flex-start;
+            }
+            .steps {
+                grid-template-columns: minmax(0, 1fr);
+            }
+            .why-list {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header>
+        <div class="brand">
+            <div class="brand-logo">
+                <img src="logo-manitas.png" alt="Logotipo El Manitas Informático" loading="lazy" width="96" height="96">
+            </div>
+            <div class="brand-text">
+                <div class="brand-name">El Manitas Informático<sup class="trademark" title="Marca registrada en trámite">™</sup></div>
+                <div class="brand-sub">Informática + manitas en Toledo y pueblos</div>
+            </div>
+        </div>
+        <div class="header-contact">
+            <div class="badge-pill">
+                📍 <span>Toledo y pueblos cercanos</span>
+            </div>
+            <div class="badge-pill">
+                ☎ <span><strong>629&nbsp;560&nbsp;729</strong></span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- HERO -->
+        <section class="hero" id="inicio">
+            <div class="hero-left">
+                <div class="hero-pill">
+                    <span>✅</span>
+                    <span><strong>Un solo profesional</strong> para tu ordenador y tus pequeños arreglos en casa</span>
+                </div>
+                <h1>
+                    Informático y manitas a domicilio en <span class="highlight">Toledo y pueblos</span>
+                </h1>
+                <p class="hero-sub">
+                    Reparación y puesta a punto de ordenadores, instalación de Windows y Linux, y <strong>pequeños arreglos del hogar</strong> (muebles, lámparas, cortinas, estanterías y más). Sin call centers, hablas directamente conmigo.
+                </p>
+                <div class="hero-cta">
+                    <a href="tel:+34629560729" class="btn btn-primary">
+                        ☎ Llamar ahora
+                    </a>
+                    <a href="https://wa.me/34629560729?text=Hola,%20he%20visto%20tu%20web%20El%20Manitas%20Informático%20y%20quiero%20pedir%20presupuesto." class="btn btn-outline">
+                        💬 Escribir por WhatsApp
+                    </a>
+                </div>
+                <p class="hero-note">
+                    <strong>Presupuesto orientativo</strong> por teléfono o WhatsApp. Sin compromiso.
+                </p>
+            </div>
+            <aside class="hero-right" aria-label="Imagen y precios orientativos">
+                <!-- Envolvemos la imagen en un contenedor de proporción fija para evitar desplazamientos al cargar -->
+                <div class="hero-image-container">
+                    <img src="pc_repair_hero.jpg" alt="Técnico reparando un ordenador portátil" loading="lazy" width="800" height="1066">
+                </div>
+                <div class="hero-content">
+                    <div class="hero-right-header">
+                        <span>Vista rápida de servicios</span>
+                        <span>Precios orientativos</span>
+                    </div>
+                    <div class="hero-card">
+                        <div class="hero-card-title">Servicio informático a domicilio</div>
+                        <div class="hero-card-main">
+                            <div>
+                                <div class="hero-label">Revisión / puesta a punto</div>
+                            </div>
+                            <div class="hero-price">desde 35 €</div>
+                        </div>
+                    </div>
+                    <div class="hero-card">
+                        <div class="hero-card-title">Servicio manitas del hogar</div>
+                        <div class="hero-card-main">
+                            <div>
+                                <div class="hero-label">Muebles, lámparas, cortinas, estanterías…</div>
+                            </div>
+                            <div class="hero-price">desde 25 €/hora</div>
+                        </div>
+                    </div>
+                    <div class="hero-chip-row">
+                        <span class="hero-chip">Limpieza interna y pasta térmica</span>
+                        <span class="hero-chip">Instalación Windows / Linux</span>
+                        <span class="hero-chip">Montaje de muebles pequeños</span>
+                        <span class="hero-chip">Cortinas, estores y barras</span>
+                        <span class="hero-chip">Cuadros y estanterías</span>
+                    </div>
+                    <p class="hero-footer">
+                        Los importes son orientativos. El precio final se confirma siempre <strong>antes de ir a tu casa</strong>, en función del trabajo y del desplazamiento.
+                    </p>
+                </div>
+            </aside>
+        </section>
+
+        <!-- SERVICIOS -->
+        <section id="servicios">
+            <h2 class="section-title">Servicios</h2>
+            <p class="section-subtitle">
+                Dos bloques principales: <strong>informática</strong> y <strong>manitas del hogar</strong>. Todo con trato directo y explicación clara de lo que se hace.
+            </p>
+            <div class="grid-2">
+                <article class="card">
+                    <h3>Informática a domicilio</h3>
+                    <small>Ordenadores de sobremesa, portátiles, Windows y Linux</small>
+                    <ul>
+                        <li>Revisión completa y puesta a punto del equipo.</li>
+                        <li>Instalación y configuración de Windows o Linux.</li>
+                        <li>Limpieza interna, ventiladores y cambio de pasta térmica.</li>
+                        <li>Eliminación de virus, malware y programas basura.</li>
+                        <li>Clonado de discos (HDD a SSD / NVMe) y copias de seguridad básicas.</li>
+                        <li>Montaje y mejora de PC (RAM, SSD, gráfica, fuente, etc.).</li>
+                        <li>Configuración de impresoras, WiFi, router y red doméstica.</li>
+                    </ul>
+                    <div class="taglist">
+                        <span class="tag">PC lento</span>
+                        <span class="tag">Portátil que se calienta</span>
+                        <span class="tag">Cambio a SSD</span>
+                        <span class="tag">Formateo con copia de datos</span>
+                    </div>
+                </article>
+                <article class="card">
+                    <h3>Manitas del hogar</h3>
+                    <small>Pequeños arreglos y montajes, sin obras</small>
+                    <ul>
+                        <li>Montaje de muebles pequeños y medianos (mesas, sillas, cómodas, zapateros, etc.).</li>
+                        <li>Instalación de cortinas, estores, barras y soportes.</li>
+                        <li>Colgado de cuadros, espejos, baldas y estanterías.</li>
+                        <li>Cambio de lámparas sencillas y pantallas (sin reforma eléctrica).</li>
+                        <li>Ajuste de puertas, bisagras, tiradores y pequeños desajustes.</li>
+                        <li>Montaje de pequeños accesorios: percheros, soportes TV, accesorios de baño, etc.</li>
+                        <li>Otras pequeñas tareas de mantenimiento del hogar, sin albañilería ni fontanería compleja.</li>
+                    </ul>
+                    <div class="taglist">
+                        <span class="tag">Montar mueble</span>
+                        <span class="tag">Colgar cortinas</span>
+                        <span class="tag">Cuadros y estanterías</span>
+                        <span class="tag">Lámparas sencillas</span>
+                    </div>
+                    <p class="info-note">
+                        No se realizan reformas completas, trabajos de alta tensión ni instalaciones que requieran boletín de instalador.
+                    </p>
+                </article>
+            </div>
+        </section>
+
+        <!-- ZONA -->
+        <section id="zona">
+            <h2 class="section-title">Zona de trabajo</h2>
+            <p class="section-subtitle">
+                Servicio en <strong>Toledo y pueblos cercanos</strong>. Si estás fuera de la zona, coméntalo y te indico si puedo ir y cuál sería el suplemento por desplazamiento.
+            </p>
+            <div class="zone-box">
+                <p>
+                    Base en la zona de <strong>Toledo</strong>. Se atienden también pueblos cercanos (consultar por WhatsApp para confirmar desplazamiento y horario).
+                </p>
+                <div class="zone-pill-row">
+                    <span class="zone-pill">Toledo ciudad</span>
+                    <span class="zone-pill">Pueblos alrededor (consultar)</span>
+                    <span class="zone-pill">Desplazamiento con suplemento según distancia</span>
+                </div>
+                <p class="info-note">
+                    Indica siempre tu localidad al contactar para facilitar un precio orientativo más ajustado.
+                </p>
+            </div>
+        </section>
+
+        <!-- PRECIOS ORIENTATIVOS -->
+        <section id="precios">
+            <h2 class="section-title">Precios orientativos</h2>
+            <p class="section-subtitle">
+                No son tarifas cerradas, pero te sirven para hacerte una idea. El precio final siempre se concreta <strong>antes de ir</strong> en función del tipo de trabajo y del desplazamiento.
+            </p>
+            <div class="prices-grid">
+                <div class="card">
+                    <h3>Informática</h3>
+                    <div class="price-item">
+                        <div class="price-label">Revisión / puesta a punto de PC o portátil</div>
+                        <div class="price-value">desde 35 €</div>
+                        <div class="price-detail">Limpieza de software, revisión de estado general y recomendaciones.</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">Instalación de Windows o Linux</div>
+                        <div class="price-value">desde 40 €</div>
+                        <div class="price-detail">Instalación limpia, actualizaciones, programas básicos y configuración inicial.</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">Cambio de disco a SSD / clonación</div>
+                        <div class="price-value">desde 45 €</div>
+                        <div class="price-detail">Clonado de sistema (si es posible) o instalación nueva y puesta a punto.</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">Limpieza interna + pasta térmica</div>
+                        <div class="price-value">desde 35 €</div>
+                        <div class="price-detail">Apertura, limpieza de polvo razonable y cambio de pasta en CPU (si el equipo lo permite).</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Manitas del hogar</h3>
+                    <div class="price-item">
+                        <div class="price-label">Servicio manitas (mano de obra)</div>
+                        <div class="price-value">desde 25 €/hora</div>
+                        <div class="price-detail">Mano de obra por tiempo efectivo de trabajo, con mínimo según desplazamiento.</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">Montaje de mueble sencillo</div>
+                        <div class="price-value">desde 25 €</div>
+                        <div class="price-detail">Muebles tipo mesita, mueble auxiliar, sillas, zapateros pequeños, etc.</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">Cortinas, estores, barras y soportes</div>
+                        <div class="price-value">desde 30 €</div>
+                        <div class="price-detail">Montaje básico en pared/techo, siempre que la superficie lo permita sin obra adicional.</div>
+                    </div>
+                    <div class="price-item">
+                        <div class="price-label">Cuadros, baldas y estanterías</div>
+                        <div class="price-value">desde 25 €</div>
+                        <div class="price-detail">Colgado con tacos y tornillos estándar, sin sistemas especiales ni paredes en mal estado.</div>
+                    </div>
+                </div>
+            </div>
+            <p class="info-note">
+                Los precios incluyen mano de obra en la zona de Toledo. Para pueblos cercanos puede aplicarse un suplemento por desplazamiento. Siempre se indica el coste aproximado antes de confirmar la visita.
+            </p>
+        </section>
+
+        <!-- CÓMO TRABAJO -->
+        <section id="como-trabajo">
+            <h2 class="section-title">Cómo trabajo</h2>
+            <p class="section-subtitle">
+                Sin líos. Me contactas, vemos si lo puedo hacer y te doy un precio orientativo claro.
+            </p>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">Paso 1</div>
+                    <div class="step-title">Me contactas</div>
+                    <div class="step-text">Llama o manda un WhatsApp indicando qué necesitas y en qué zona estás.</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">Paso 2</div>
+                    <div class="step-title">Te doy precio orientativo</div>
+                    <div class="step-text">Te digo si lo puedo hacer y un importe aproximado según el trabajo y el desplazamiento.</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">Paso 3</div>
+                    <div class="step-title">Concertamos día y hora</div>
+                    <div class="step-text">Fijamos una franja horaria y confirmo de nuevo el tipo de trabajo a realizar.</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">Paso 4</div>
+                    <div class="step-title">Trabajo hecho</div>
+                    <div class="step-text">Hago el trabajo, te explico lo que se ha hecho y resolvemos dudas básicas en el momento.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- POR QUÉ ELEGIR -->
+        <section id="por-que">
+            <h2 class="section-title">Por qué elegir El Manitas Informático</h2>
+            <p class="section-subtitle">
+                No eres un número de ticket. Hablas directamente con la persona que va a ir a tu casa.
+            </p>
+            <div class="why-list">
+                <div class="why-item">
+                    <strong>Informática + manitas</strong>
+                    <p>Puedes aprovechar la visita para revisar el ordenador y a la vez montar un mueble, colgar una estantería o ajustar un par de cosas en casa.</p>
+                </div>
+                <div class="why-item">
+                    <strong>Explicaciones claras</strong>
+                    <p>Nada de tecnicismos vacíos. Se explica qué se hace, por qué se hace y qué opciones tienes antes de gastar más dinero.</p>
+                </div>
+                <div class="why-item">
+                    <strong>Trato cercano</strong>
+                    <p>Trato directo, sin intermediarios. Si luego tienes alguna duda puntual del trabajo, puedes volver a preguntar.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq">
+            <h2 class="section-title">Preguntas frecuentes</h2>
+            <p class="section-subtitle">
+                Algunas dudas habituales antes de pedir presupuesto.
+            </p>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <h4>¿Trabajas solo en Toledo ciudad?</h4>
+                    <p>La base está en Toledo, pero se pueden atender pueblos cercanos. Indica siempre tu localidad al escribir por WhatsApp para poder decirte si se puede ir y qué suplemento tendría el desplazamiento.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>¿Los precios de la web son finales?</h4>
+                    <p>No. Son precios orientativos habituales. El precio final depende del tipo de trabajo, la dificultad y el desplazamiento. Siempre se comenta el importe antes de ir.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>¿Haces reformas grandes, fontanería o electricidad compleja?</h4>
+                    <p>No. El servicio es de <strong>pequeños arreglos y mantenimiento</strong>. No se hacen reformas integrales ni trabajos que requieran instalador autorizado o boletín.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>¿Puedo combinar informática y manitas en la misma visita?</h4>
+                    <p>Sí, siempre que el tiempo lo permita. Coméntalo al pedir presupuesto para calcular bien el tiempo y el coste total.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACTO -->
+        <section id="contacto">
+            <h2 class="section-title">Contacto</h2>
+            <p class="section-subtitle">
+                Puedes llamar, escribir por WhatsApp o enviar el formulario. Respuesta lo antes posible dentro del horario.
+            </p>
+            <div class="contact-grid">
+                <div class="contact-box">
+                    <div class="contact-row">
+                        <div>
+                            <div class="contact-label">Teléfono</div>
+                            <div class="contact-value">629&nbsp;560&nbsp;729</div>
+                        </div>
+                        <a href="tel:+34629560729" class="btn btn-outline">Llamar</a>
+                    </div>
+                    <div class="contact-row">
+                        <div>
+                            <div class="contact-label">WhatsApp</div>
+                            <div class="contact-value">Mensaje directo</div>
+                        </div>
+                        <a href="https://wa.me/34629560729?text=Hola,%20he%20visto%20tu%20web%20El%20Manitas%20Informático%20y%20quiero%20pedir%20presupuesto." class="btn btn-outline">Abrir WhatsApp</a>
+                    </div>
+                    <div class="contact-row">
+                        <div>
+                            <div class="contact-label">Correo electrónico</div>
+                            <div class="contact-value">elmanitasinformatico.es@gmail.com</div>
+                        </div>
+                    </div>
+                    <p class="info-note">
+                        Horario orientativo: de lunes a viernes en horario de tarde, y fines de semana según disponibilidad. Si no se puede atender la llamada, deja WhatsApp y se responde cuando sea posible.
+                    </p>
+                </div>
+                <div class="card">
+                    <form action="#" method="post">
+                        <div>
+                            <label for="nombre">Nombre</label>
+                            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
+                        </div>
+                        <div>
+                            <label for="localidad">Localidad</label>
+                            <input type="text" id="localidad" name="localidad" placeholder="Toledo, Argés, etc." required />
+                        </div>
+                        <div>
+                            <label for="telefono">Teléfono</label>
+                            <input type="tel" id="telefono" name="telefono" placeholder="Tu teléfono de contacto" />
+                        </div>
+                        <div>
+                            <label for="tipo">¿Qué necesitas?</label>
+                            <input type="text" id="tipo" name="tipo" placeholder="Ej.: PC lento y colgar unas estanterías" />
+                        </div>
+                        <div>
+                            <label for="mensaje">Detalles</label>
+                            <textarea id="mensaje" name="mensaje" placeholder="Cuanta más información des, más preciso podrá ser el presupuesto orientativo."></textarea>
+                        </div>
+                        <div class="contact-actions">
+                            <button type="submit" class="btn btn-primary">Enviar (formulario de ejemplo)</button>
+                        </div>
+                        <p class="form-note">
+                            Este formulario es un ejemplo básico. Si lo prefieres, puedes escribir directamente por WhatsApp para una respuesta más rápida.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <span>© <span id="year"></span> El Manitas Informático · Toledo y pueblos</span>
+        <span>Informática y pequeños arreglos del hogar a domicilio</span>
+    </footer>
+</div>
+<script>
+    // Actualiza el año automáticamente en el footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
