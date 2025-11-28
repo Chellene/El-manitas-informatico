@@ -196,7 +196,8 @@
             display: grid;
             grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
             gap: 24px;
-            align-items: center;
+            /* Estiramos los elementos para que ambas columnas tengan la misma altura */
+            align-items: stretch;
         }
 
         .hero-left {
@@ -415,6 +416,8 @@
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 16px;
+            /* Hacemos que los elementos se estiren a la misma altura */
+            align-items: stretch;
         }
 
         .card {
@@ -423,6 +426,10 @@
             border: 1px solid rgba(31, 41, 55, 0.9);
             padding: 14px 14px 12px;
             box-shadow: 0 12px 26px rgba(0, 0, 0, 0.65);
+            /* Igualamos la altura de las tarjetas en las rejillas */
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .card h3 {
@@ -940,6 +947,42 @@
         }
         .assistant-option:hover {
             background: rgba(31, 41, 55, 1);
+        }
+        /* Entrada de texto en el asistente virtual */
+        .assistant-input {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            border-top: 1px solid rgba(31, 41, 55, 0.9);
+            background: rgba(15, 23, 42, 0.95);
+        }
+        .assistant-input input {
+            flex: 1;
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            border-radius: var(--radius-full);
+            padding: 6px 12px;
+            background: rgba(15, 23, 42, 0.96);
+            color: var(--color-text);
+            font-size: 0.8rem;
+            outline: none;
+        }
+        .assistant-input input::placeholder {
+            color: var(--color-muted);
+        }
+        .assistant-input button {
+            border: none;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+            color: #022c22;
+            padding: 6px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .assistant-input button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
         }
         .assistant-conversation .message {
             margin-bottom: 6px;
@@ -1483,6 +1526,11 @@
             <button class="assistant-option" data-message="Tengo un virus o publicidad">Virus / Malware</button>
             <button class="assistant-option" data-message="Otra consulta">Otra consulta</button>
         </div>
+        <!-- Entrada de texto para consultas personalizadas -->
+        <div class="assistant-input" id="assistant-input">
+            <input type="text" id="assistant-text" placeholder="Escribe tu consulta…" />
+            <button type="button" id="assistant-send">Enviar</button>
+        </div>
     </div>
     <!-- Botón flotante para subir al inicio -->
     <div class="scroll-top-btn" id="scroll-top-btn">↑</div>
@@ -1498,6 +1546,8 @@
         const assistantOptions = document.getElementById('assistant-options');
         const assistantConversation = document.getElementById('assistant-conversation');
         const scrollBtn = document.getElementById('scroll-top-btn');
+        const assistantInput = document.getElementById('assistant-text');
+        const assistantSend = document.getElementById('assistant-send');
 
         /**
          * Función para añadir un mensaje al historial del asistente.
@@ -1534,37 +1584,68 @@
                 appendMessage(message, 'user');
                 // Oculta las opciones mientras se muestra la respuesta
                 assistantOptions.style.display = 'none';
-                let response;
-                switch (message) {
-                    case 'Mi ordenador va lento':
-                        response = 'Tu equipo necesita mantenimiento: limpieza interna, optimización del sistema y posiblemente un SSD para ganar velocidad. ¿Quieres que te llame?';
-                        break;
-                    case 'Quiero instalar un SSD':
-                        response = 'Te asesoro para elegir el SSD adecuado y clono tu sistema sin perder datos. ¿Agendamos una llamada?';
-                        break;
-                    case 'Tengo problemas con el WiFi':
-                        response = 'Revisaré tu red y mejoraremos la cobertura con repetidores o routers de calidad. ¿Quieres más información?';
-                        break;
-                    case 'Necesito formatear Windows':
-                        response = 'Realizo formateo completo, instalación de Windows y guardo tus datos cuando es posible. ¿Lo vemos?';
-                        break;
-                    case 'Tengo un virus o publicidad':
-                        response = 'Elimino malware y configuro tu equipo para evitar futuras infecciones. ¿Prefieres llamarme?';
-                        break;
-                    default:
-                        response = 'Cuéntame tu problema y preparamos una solución. ¿Prefieres hablar por teléfono o WhatsApp?';
+                handleUserMessage(message);
+            }
+        });
+
+        // Gestiona el envío de texto personalizado
+        function handleUserMessage(message) {
+            // Oculta las opciones al recibir cualquier mensaje
+            assistantOptions.style.display = 'none';
+            // Genera una respuesta en función del texto
+            const response = generateResponse(message);
+            appendMessage(response, 'bot');
+            // Inserta CTA para llamada o WhatsApp
+            const ctaContainer = document.createElement('div');
+            ctaContainer.style.marginTop = '10px';
+            ctaContainer.style.display = 'flex';
+            ctaContainer.style.gap = '10px';
+            ctaContainer.innerHTML =
+                '<a href="tel:+34629560729" class="badge-pill" style="background: rgba(31,41,55,0.9); color: #ffffff; padding: 6px 12px; border-radius: 999px;">Llamar</a>' +
+                '<a href="https://wa.me/34629560729?text=Hola,%20tengo%20una%20consulta" class="badge-pill" style="background: rgba(31,41,55,0.9); color: #ffffff; padding: 6px 12px; border-radius: 999px;">WhatsApp</a>';
+            assistantConversation.appendChild(ctaContainer);
+            assistantConversation.scrollTop = assistantConversation.scrollHeight;
+        }
+
+        // Función para generar respuestas en función de palabras clave
+        function generateResponse(msg) {
+            const lower = msg.toLowerCase();
+            if (lower.includes('lento')) {
+                return 'Tu equipo necesita mantenimiento: limpieza interna, optimización del sistema y posiblemente un SSD para ganar velocidad. ¿Quieres que te llame?';
+            }
+            if (lower.includes('ssd') || lower.includes('disco')) {
+                return 'Te asesoro para elegir el SSD adecuado y clono tu sistema sin perder datos. ¿Agendamos una llamada?';
+            }
+            if (lower.includes('wifi') || lower.includes('wi-fi') || lower.includes('wi fi')) {
+                return 'Revisaré tu red y mejoraremos la cobertura con repetidores o routers de calidad. ¿Quieres más información?';
+            }
+            if (lower.includes('formate') || lower.includes('windows') || lower.includes('window')) {
+                return 'Realizo formateo completo, instalación de Windows y guardo tus datos cuando es posible. ¿Lo vemos?';
+            }
+            if (lower.includes('virus') || lower.includes('malware') || lower.includes('publicidad')) {
+                return 'Elimino malware y configuro tu equipo para evitar futuras infecciones. ¿Prefieres llamarme?';
+            }
+            return 'Cuéntame tu problema y preparamos una solución. ¿Prefieres hablar por teléfono o WhatsApp?';
+        }
+
+        // Manejadores de envío para el campo de texto
+        assistantSend.addEventListener('click', () => {
+            const text = assistantInput.value.trim();
+            if (text) {
+                appendMessage(text, 'user');
+                assistantInput.value = '';
+                handleUserMessage(text);
+            }
+        });
+        assistantInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const text = assistantInput.value.trim();
+                if (text) {
+                    appendMessage(text, 'user');
+                    assistantInput.value = '';
+                    handleUserMessage(text);
                 }
-                appendMessage(response, 'bot');
-                // Inserta CTA para llamada o WhatsApp
-                const ctaContainer = document.createElement('div');
-                ctaContainer.style.marginTop = '10px';
-                ctaContainer.style.display = 'flex';
-                ctaContainer.style.gap = '10px';
-                ctaContainer.innerHTML =
-                    '<a href="tel:+34629560729" class="badge-pill" style="background: rgba(31,41,55,0.9); color: #ffffff; padding: 6px 12px; border-radius: 999px;">Llamar</a>' +
-                    '<a href="https://wa.me/34629560729?text=Hola,%20tengo%20una%20consulta" class="badge-pill" style="background: rgba(31,41,55,0.9); color: #ffffff; padding: 6px 12px; border-radius: 999px;">WhatsApp</a>';
-                assistantConversation.appendChild(ctaContainer);
-                assistantConversation.scrollTop = assistantConversation.scrollHeight;
             }
         });
 
