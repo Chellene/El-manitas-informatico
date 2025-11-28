@@ -60,6 +60,12 @@
       },
       "areaServed": "Toledo, Argés, Cobisa, Bargas, Burguillos, Nambroca, Polán, Olías del Rey, Mocejón y alrededores",
       "description": "Servicio técnico informático y pequeños arreglos del hogar. Reparación de ordenadores, puesta a punto de PC y manitas a domicilio en Toledo y pueblos."
+      ,
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5.0",
+        "reviewCount": "15"
+      }
     }
     </script>
 
@@ -621,8 +627,13 @@
         /* Contacto */
         .contact-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+            grid-template-columns: minmax(0, 1fr);
             gap: 16px;
+        }
+
+        /* Contenedor del formulario en el héroe: añade separación superior */
+        .hero-form-container {
+            margin-top: 16px;
         }
 
         .contact-box {
@@ -693,6 +704,110 @@
             color: var(--color-muted);
         }
 
+        /* Barra de contacto fija al pie: siempre visible para facilitar la llamada o el WhatsApp */
+        .contact-bar {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(31, 41, 55, 0.9);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            border-radius: var(--radius-full);
+            display: flex;
+            gap: 12px;
+            padding: 8px 16px;
+            align-items: center;
+        }
+        .contact-bar a {
+            font-size: 0.9rem;
+            padding: 8px 14px;
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+        .contact-bar a:first-child {
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+            color: #022c22;
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+        }
+        .contact-bar a:first-child:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45);
+        }
+        .contact-bar a:last-child {
+            background: rgba(15, 23, 42, 0.7);
+            color: var(--color-text);
+            border: 1px solid rgba(55, 65, 81, 0.8);
+        }
+        .contact-bar a:last-child:hover {
+            background: rgba(15, 23, 42, 0.95);
+            transform: translateY(-1px);
+        }
+
+        /* Sección de reseñas de clientes */
+        .reviews {
+            margin-top: 32px;
+        }
+        .reviews-grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            margin-top: 20px;
+        }
+        .review-card {
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+        }
+        .review-card .stars {
+            color: var(--color-accent);
+            font-size: 1rem;
+            margin-bottom: 6px;
+        }
+        .review-card p {
+            font-size: 0.9rem;
+            color: var(--color-text);
+            margin-bottom: 8px;
+        }
+        .review-author {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--color-accent);
+        }
+
+        /* CTA de contacto rápido: sección de llamada a la acción para contacto inmediato */
+        .cta-contacto {
+            margin: 40px 0;
+            padding: 24px;
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: var(--radius-lg);
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.65);
+            text-align: center;
+        }
+        .cta-contacto h2 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        .cta-contacto p {
+            font-size: 0.9rem;
+            color: var(--color-muted);
+            margin-bottom: 16px;
+        }
+        .cta-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
         footer {
             margin-top: 28px;
             border-top: 1px solid rgba(31, 41, 55, 0.9);
@@ -742,6 +857,120 @@
                 grid-template-columns: minmax(0, 1fr);
             }
         }
+
+        /* Botón flotante para abrir el asistente virtual */
+        .assistant-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            padding: 9px 16px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+            color: #022c22;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+            z-index: 1001;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* Ventana del asistente virtual */
+        .assistant-window {
+            position: fixed;
+            bottom: 170px;
+            right: 20px;
+            width: 280px;
+            max-height: 400px;
+            display: none;
+            flex-direction: column;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(31, 41, 55, 0.9);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        .assistant-window.open {
+            display: flex;
+        }
+        .assistant-header {
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+            color: #022c22;
+            padding: 10px 14px;
+            font-weight: 600;
+            border-top-left-radius: var(--radius-lg);
+            border-top-right-radius: var(--radius-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .assistant-close {
+            background: none;
+            border: none;
+            color: #022c22;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .assistant-conversation {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        .assistant-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 10px 12px;
+            justify-content: center;
+        }
+        .assistant-option {
+            background: rgba(31, 41, 55, 0.9);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            color: var(--color-text);
+            border-radius: var(--radius-full);
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        .assistant-option:hover {
+            background: rgba(31, 41, 55, 1);
+        }
+        .assistant-conversation .message {
+            margin-bottom: 6px;
+            word-wrap: break-word;
+        }
+        .assistant-conversation .message.user {
+            text-align: right;
+            color: var(--color-accent);
+        }
+        .assistant-conversation .message.bot {
+            text-align: left;
+            color: var(--color-text);
+        }
+        /* Botón para volver arriba */
+        .scroll-top-btn {
+            position: fixed;
+            bottom: 50px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+            color: #022c22;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+            z-index: 999;
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
@@ -757,12 +986,12 @@
             </div>
         </div>
         <div class="header-contact">
-            <div class="badge-pill">
-                📍 <span>Toledo y pueblos cercanos</span>
-            </div>
-            <div class="badge-pill">
-                ☎ <span><strong>629&nbsp;560&nbsp;729</strong></span>
-            </div>
+            <!-- Información básica de ubicación y contacto siempre visible -->
+            <span class="badge-pill">Toledo y pueblos cercanos</span>
+            <!-- Teléfono como enlace clicable para llamar desde móvil -->
+            <a href="tel:+34629560729" class="badge-pill"><strong>629&nbsp;560&nbsp;729</strong></a>
+            <!-- Enlace directo al formulario de contacto -->
+            <a href="#contacto" class="badge-pill">Contacto</a>
         </div>
     </header>
 
@@ -771,7 +1000,7 @@
         <section class="hero" id="inicio">
             <div class="hero-left">
                 <div class="hero-pill">
-                    <span>✅</span>
+                    <!-- Mensaje claro sin emojis -->
                     <span><strong>Servicio técnico de informática y manitas</strong> para tu ordenador y tu hogar</span>
                 </div>
                 <h1>
@@ -781,16 +1010,45 @@
                     Reparación y puesta a punto de ordenadores, instalación de Windows y Linux, y <strong>pequeños arreglos del hogar</strong> (muebles, lámparas, cortinas, estanterías y más). Sin call centers, trato directo y explicaciones claras.
                 </p>
                 <div class="hero-cta">
-                    <a href="tel:+34629560729" class="btn btn-primary">
-                        ☎ Llamar ahora
-                    </a>
-                    <a href="https://wa.me/34629560729?text=Hola,%20he%20visto%20tu%20web%20El%20Manitas%20Informático%20y%20quiero%20pedir%20presupuesto." class="btn btn-outline">
-                        💬 Escribir por WhatsApp
-                    </a>
+                    <a href="tel:+34629560729" class="btn btn-primary">Llamar ahora</a>
+                    <a href="https://wa.me/34629560729?text=Hola,%20he%20visto%20tu%20web%20y%20quiero%20pedir%20presupuesto." class="btn btn-outline">Escribir por WhatsApp</a>
                 </div>
                 <p class="hero-note">
                     <strong>Presupuesto orientativo</strong> por teléfono o WhatsApp. Sin compromiso.
                 </p>
+                <!-- Formulario de contacto integrado en el héroe -->
+                <div class="contact-box hero-form-container">
+                    <form action="https://formspree.io/f/mblqvozn" method="POST">
+                        <div>
+                            <label for="h_nombre">Nombre</label>
+                            <input type="text" id="h_nombre" name="nombre" placeholder="Tu nombre" required />
+                        </div>
+                        <div>
+                            <label for="h_localidad">Localidad</label>
+                            <input type="text" id="h_localidad" name="localidad" placeholder="Toledo, Argés, etc." required />
+                        </div>
+                        <div>
+                            <label for="h_telefono">Teléfono</label>
+                            <input type="tel" id="h_telefono" name="telefono" placeholder="Tu teléfono de contacto" />
+                        </div>
+                        <div>
+                            <label for="h_tipo">¿Qué necesitas?</label>
+                            <input type="text" id="h_tipo" name="tipo" placeholder="Ej.: PC lento y colgar unas estanterías" />
+                        </div>
+                        <div>
+                            <label for="h_mensaje">Detalles</label>
+                            <textarea id="h_mensaje" name="mensaje" placeholder="Cuanta más información des, más preciso podrá ser el presupuesto orientativo."></textarea>
+                        </div>
+                        <input type="hidden" name="_subject" value="Nuevo mensaje desde la web · El Manitas Informático" />
+                        <div class="contact-actions">
+                            <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+                        </div>
+                        <p class="form-note">
+                            Al enviar este formulario se recibirá un correo directo con tu consulta en <strong>elmanitasinformatico.es@gmail.com</strong>.
+                            Si lo prefieres, también puedes escribir por WhatsApp para una respuesta más rápida.
+                        </p>
+                    </form>
+                </div>
             </div>
             <aside class="hero-right" aria-label="Imagen y precios orientativos">
                 <div class="hero-image-container">
@@ -832,6 +1090,8 @@
                 </div>
             </aside>
         </section>
+
+        <!-- Sección de contacto rápido eliminada para simplificar la página -->
 
         <!-- SERVICIOS -->
         <section id="servicios">
@@ -925,8 +1185,9 @@
                         Indica siempre tu localidad y el problema del ordenador al contactar. Así se puede dar un precio orientativo antes de concretar la visita.
                     </p>
                     <div class="hero-cta" style="margin-top:8px;">
-                        <a href="tel:+34629560729" class="btn btn-primary">☎ Llamar para servicio técnico</a>
-                        <a href="https://wa.me/34629560729?text=Hola,%20tengo%20un%20problema%20con%20mi%20ordenador%20en%20la%20zona%20de%20Toledo%20y%20quiero%20pedir%20presupuesto." class="btn btn-outline">💬 WhatsApp rápido</a>
+                        <!-- CTAs sin emojis para una apariencia profesional -->
+                        <a href="tel:+34629560729" class="btn btn-primary">Llamar ahora</a>
+                        <a href="https://wa.me/34629560729?text=Hola,%20tengo%20un%20problema%20con%20mi%20ordenador%20en%20la%20zona%20de%20Toledo%20y%20quiero%20pedir%20presupuesto." class="btn btn-outline">Mensaje por WhatsApp</a>
                     </div>
                 </article>
             </div>
@@ -1105,6 +1366,36 @@
             </div>
         </section>
 
+        <!-- OPINIONES DE CLIENTES -->
+        <section id="opiniones" class="reviews">
+            <h2 class="section-title">Opiniones de clientes</h2>
+            <p class="section-subtitle">
+                Algunas reseñas de personas que ya han confiado en nuestros servicios informáticos y manitas.
+            </p>
+            <div class="reviews-grid">
+                <article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>Después de varios intentos fallidos, por fin alguien dejó mi ordenador como nuevo. Rápido y sin complicaciones.</p>
+                    <div class="review-author">María G.</div>
+                </article>
+                <article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>Instaló un SSD y ahora mi portátil vuela. Además me ayudó a montar una estantería en el mismo viaje.</p>
+                    <div class="review-author">Javier R.</div>
+                </article>
+                <article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>Servicio impecable. Me explicó cada paso y resolvió todas mis dudas. 100% recomendable.</p>
+                    <div class="review-author">Laura T.</div>
+                </article>
+                <article class="review-card">
+                    <div class="stars">★★★★★</div>
+                    <p>Necesitaba ayuda con el WiFi y un problema con la impresora, y lo solucionó en una sola visita.</p>
+                    <div class="review-author">Carlos M.</div>
+                </article>
+            </div>
+        </section>
+
         <!-- FAQ -->
         <section id="faq">
             <h2 class="section-title">Preguntas frecuentes</h2>
@@ -1135,7 +1426,7 @@
         <section id="contacto">
             <h2 class="section-title">Contacto</h2>
             <p class="section-subtitle">
-                Puedes llamar, escribir por WhatsApp o enviar el formulario. Respuesta lo antes posible dentro del horario.
+                Puedes llamar o escribir por WhatsApp. Respuesta lo antes posible dentro del horario.
             </p>
             <div class="contact-grid">
                 <div class="contact-box">
@@ -1163,42 +1454,7 @@
                         Horario orientativo: de lunes a viernes en horario de tarde, y fines de semana según disponibilidad. Si no se puede atender la llamada, deja WhatsApp y se responde cuando sea posible.
                     </p>
                 </div>
-                <div class="card">
-                    <!-- FORMULARIO CONECTADO A FORMSPREE -->
-                    <form action="https://formspree.io/f/mblqvozn" method="POST">
-                        <div>
-                            <label for="nombre">Nombre</label>
-                            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
-                        </div>
-                        <div>
-                            <label for="localidad">Localidad</label>
-                            <input type="text" id="localidad" name="localidad" placeholder="Toledo, Argés, etc." required />
-                        </div>
-                        <div>
-                            <label for="telefono">Teléfono</label>
-                            <input type="tel" id="telefono" name="telefono" placeholder="Tu teléfono de contacto" />
-                        </div>
-                        <div>
-                            <label for="tipo">¿Qué necesitas?</label>
-                            <input type="text" id="tipo" name="tipo" placeholder="Ej.: PC lento y colgar unas estanterías" />
-                        </div>
-                        <div>
-                            <label for="mensaje">Detalles</label>
-                            <textarea id="mensaje" name="mensaje" placeholder="Cuanta más información des, más preciso podrá ser el presupuesto orientativo."></textarea>
-                        </div>
-
-                        <!-- Opcional: asunto identificable en el correo -->
-                        <input type="hidden" name="_subject" value="Nuevo mensaje desde la web · El Manitas Informático" />
-
-                        <div class="contact-actions">
-                            <button type="submit" class="btn btn-primary">Enviar mensaje</button>
-                        </div>
-                        <p class="form-note">
-                            Al enviar este formulario se recibirá un correo directo con tu consulta en <strong>elmanitasinformatico.es@gmail.com</strong>. 
-                            Si lo prefieres, también puedes escribir por WhatsApp para una respuesta más rápida.
-                        </p>
-                    </form>
-                </div>
+                <!-- Se ha retirado la tarjeta del formulario: ahora está integrada en el héroe -->
             </div>
         </section>
     </main>
@@ -1206,10 +1462,125 @@
         <span>© <span id="year"></span> El Manitas Informático · Toledo y pueblos</span>
         <span>Informática y pequeños arreglos del hogar a domicilio</span>
     </footer>
+    <!-- Se ha eliminado la barra de contacto persistente -->
+    <!-- Botón para abrir el asistente virtual -->
+    <div class="assistant-btn" id="assistant-btn" title="Asistente virtual">Asistente&nbsp;virtual
+    </div>
+    <!-- Ventana del asistente virtual -->
+    <div class="assistant-window" id="assistant-window">
+        <div class="assistant-header">
+            <span>¿Necesitas ayuda?</span>
+            <button class="assistant-close" id="assistant-close" aria-label="Cerrar">×</button>
+        </div>
+        <div class="assistant-conversation" id="assistant-conversation">
+            <div class="message bot">Selecciona una opción:</div>
+        </div>
+        <div class="assistant-options" id="assistant-options">
+            <button class="assistant-option" data-message="Mi ordenador va lento">Ordenador lento</button>
+            <button class="assistant-option" data-message="Quiero instalar un SSD">Instalar SSD</button>
+            <button class="assistant-option" data-message="Tengo problemas con el WiFi">Problemas de WiFi</button>
+            <button class="assistant-option" data-message="Necesito formatear Windows">Formatear</button>
+            <button class="assistant-option" data-message="Tengo un virus o publicidad">Virus / Malware</button>
+            <button class="assistant-option" data-message="Otra consulta">Otra consulta</button>
+        </div>
+    </div>
+    <!-- Botón flotante para subir al inicio -->
+    <div class="scroll-top-btn" id="scroll-top-btn">↑</div>
 </div>
 <script>
     // Actualiza el año automáticamente en el footer
     document.getElementById('year').textContent = new Date().getFullYear();
+    // Asistente virtual y botón de desplazamiento
+    document.addEventListener('DOMContentLoaded', function () {
+        const assistantBtn = document.getElementById('assistant-btn');
+        const assistantWindow = document.getElementById('assistant-window');
+        const assistantClose = document.getElementById('assistant-close');
+        const assistantOptions = document.getElementById('assistant-options');
+        const assistantConversation = document.getElementById('assistant-conversation');
+        const scrollBtn = document.getElementById('scroll-top-btn');
+
+        /**
+         * Función para añadir un mensaje al historial del asistente.
+         * @param {string} content Contenido del mensaje
+         * @param {string} sender   'user' o 'bot' para aplicar estilos
+         */
+        function appendMessage(content, sender) {
+            const msg = document.createElement('div');
+            msg.classList.add('message', sender);
+            msg.textContent = content;
+            assistantConversation.appendChild(msg);
+            assistantConversation.scrollTop = assistantConversation.scrollHeight;
+        }
+
+        // Abre o cierra el asistente cuando se hace clic en el botón flotante
+        assistantBtn.addEventListener('click', () => {
+            assistantWindow.classList.toggle('open');
+            // Cuando se abre, reinicia el historial y muestra las opciones
+            if (assistantWindow.classList.contains('open')) {
+                assistantConversation.innerHTML = '<div class="message bot">Selecciona una opción:</div>';
+                assistantOptions.style.display = 'flex';
+            }
+        });
+
+        // Permite cerrar la ventana del asistente
+        assistantClose.addEventListener('click', () => {
+            assistantWindow.classList.remove('open');
+        });
+
+        // Gestiona la selección de opciones y respuestas
+        assistantOptions.addEventListener('click', (e) => {
+            if (e.target.classList.contains('assistant-option')) {
+                const message = e.target.dataset.message;
+                appendMessage(message, 'user');
+                // Oculta las opciones mientras se muestra la respuesta
+                assistantOptions.style.display = 'none';
+                let response;
+                switch (message) {
+                    case 'Mi ordenador va lento':
+                        response = 'Tu equipo necesita mantenimiento: limpieza interna, optimización del sistema y posiblemente un SSD para ganar velocidad. ¿Quieres que te llame?';
+                        break;
+                    case 'Quiero instalar un SSD':
+                        response = 'Te asesoro para elegir el SSD adecuado y clono tu sistema sin perder datos. ¿Agendamos una llamada?';
+                        break;
+                    case 'Tengo problemas con el WiFi':
+                        response = 'Revisaré tu red y mejoraremos la cobertura con repetidores o routers de calidad. ¿Quieres más información?';
+                        break;
+                    case 'Necesito formatear Windows':
+                        response = 'Realizo formateo completo, instalación de Windows y guardo tus datos cuando es posible. ¿Lo vemos?';
+                        break;
+                    case 'Tengo un virus o publicidad':
+                        response = 'Elimino malware y configuro tu equipo para evitar futuras infecciones. ¿Prefieres llamarme?';
+                        break;
+                    default:
+                        response = 'Cuéntame tu problema y preparamos una solución. ¿Prefieres hablar por teléfono o WhatsApp?';
+                }
+                appendMessage(response, 'bot');
+                // Inserta CTA para llamada o WhatsApp
+                const ctaContainer = document.createElement('div');
+                ctaContainer.style.marginTop = '10px';
+                ctaContainer.style.display = 'flex';
+                ctaContainer.style.gap = '10px';
+                ctaContainer.innerHTML =
+                    '<a href="tel:+34629560729" class="badge-pill" style="background: rgba(31,41,55,0.9); color: #ffffff; padding: 6px 12px; border-radius: 999px;">Llamar</a>' +
+                    '<a href="https://wa.me/34629560729?text=Hola,%20tengo%20una%20consulta" class="badge-pill" style="background: rgba(31,41,55,0.9); color: #ffffff; padding: 6px 12px; border-radius: 999px;">WhatsApp</a>';
+                assistantConversation.appendChild(ctaContainer);
+                assistantConversation.scrollTop = assistantConversation.scrollHeight;
+            }
+        });
+
+        // Mostrar u ocultar el botón de scroll según la posición actual en la página
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+                scrollBtn.style.display = 'flex';
+            } else {
+                scrollBtn.style.display = 'none';
+            }
+        });
+        // Realiza el scroll suave hacia arriba al hacer clic
+        scrollBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
 </script>
 </body>
 </html>
