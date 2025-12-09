@@ -15,7 +15,8 @@
 	<link rel="shortcut icon" href="favicon.ico">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Informático a domicilio en Toledo | Reparación de ordenadores y manitas</title>
+    <!-- Actualizamos el título para que empiece por la marca, mejorando la visibilidad del nombre en buscadores -->
+    <title>El Manitas Informático - Informático a domicilio en Toledo | Reparación de ordenadores y manitas</title>
 
     <!-- Metadatos para SEO -->
     <meta name="description" content="Servicio técnico informático a domicilio en Toledo y pueblos. Reparación de ordenadores, instalación de Windows, limpieza interna, SSD, WiFi y pequeños arreglos del hogar. Precios claros." />
@@ -30,12 +31,12 @@
     <meta property="og:locale" content="es_ES" />
     <meta property="og:site_name" content="El Manitas Informático" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Informático a domicilio en Toledo | Reparación de ordenadores y manitas" />
+    <meta name="twitter:title" content="El Manitas Informático - Informático a domicilio en Toledo | Reparación de ordenadores y manitas" />
     <meta name="twitter:description" content="Servicio técnico informático a domicilio en Toledo y pueblos. Reparación de ordenadores, instalación de Windows, limpieza interna, SSD, WiFi y pequeños arreglos del hogar. Precios claros." />
     <meta name="twitter:image" content="pc_repair_hero.jpg" />
 
     <!-- Open Graph para redes sociales -->
-    <meta property="og:title" content="Informático a domicilio en Toledo | Reparación de ordenadores y manitas" />
+    <meta property="og:title" content="El Manitas Informático - Informático a domicilio en Toledo | Reparación de ordenadores y manitas" />
     <meta property="og:description" content="Servicio técnico informático a domicilio en Toledo y pueblos. Reparación de ordenadores, instalación de Windows, limpieza interna, SSD, WiFi y pequeños arreglos del hogar. Precios claros." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://elmanitasinformatico.es/" />
@@ -49,7 +50,7 @@
       "name": "El Manitas Informático",
       "image": "pc_repair_hero.jpg",
       "logo": "logo-manitas.png",
-      "telephone": "+34 629 560 729",
+      "telephone": "+34 614 832 668",
       "url": "https://elmanitasinformatico.es/",
       "priceRange": "€€",
       "address": {
@@ -69,6 +70,10 @@
     }
     </script>
 
+    <!-- Importar fuente moderna y expresiva (Poppins) para una tipografía actual y clara -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
         /* Paleta de colores y variables para reutilizar */
         :root {
@@ -80,8 +85,119 @@
             --color-muted: #9ca3af;
             --color-card: #020617;
             --color-border: #1f2937;
+            /* Colors for call and WhatsApp buttons */
+            --color-call: #3b82f6; /* Blue for call buttons to convey trust and reliability */
+            --color-call-soft: #2563eb;
+            --color-whatsapp: var(--color-accent); /* Use the main accent for WhatsApp buttons */
+            --color-whatsapp-soft: var(--color-accent-soft);
             --radius-lg: 18px;
             --radius-full: 999px;
+        }
+
+        /* Tema claro: redefine las variables para ofrecer un modo luminoso moderno y legible.  Se activa con el atributo data-theme="light" en el elemento html. */
+        [data-theme="light"] {
+            --color-bg: #f9fafb;
+            --color-bg-soft: #eef2ff;
+            --color-accent: #16a34a;
+            --color-accent-soft: #22c55e;
+            --color-text: #1f2937;
+            --color-muted: #6b7280;
+            --color-card: #ffffff;
+            --color-border: #d1d5db;
+            /* Adjust call colours slightly darker for light theme to maintain contrast */
+            --color-call: #2563eb;
+            --color-call-soft: #1e40af;
+            --color-whatsapp: var(--color-accent);
+            --color-whatsapp-soft: var(--color-accent-soft);
+        }
+
+        /* Ajustes específicos de componentes en tema claro */
+        [data-theme="light"] .btn-outline {
+            background: rgba(248, 250, 252, 0.85);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+        [data-theme="light"] .btn-outline:hover {
+            background: rgba(248, 250, 252, 1);
+        }
+
+        /* Ajuste para insignias en tema claro: fondos claros y bordes suaves */
+        [data-theme="light"] .badge-pill {
+            background: rgba(248, 250, 252, 0.85);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        /* Fondo radiante suave para el tema claro */
+        [data-theme="light"] html,
+        [data-theme="light"] body {
+            background: radial-gradient(circle at top, var(--color-bg) 0, var(--color-bg-soft) 60%, var(--color-bg) 100%);
+        }
+
+        /*
+         * Ajustes adicionales de tema claro
+         *
+         * En la versión original algunos contenedores (tarjetas, cajas de contacto, pasos, etc.) usaban fondos
+         * opacos y oscuros que no cambiaban con el tema, haciendo que en modo claro el texto fuera ilegible.
+         * Las reglas siguientes redefinen los colores de fondo y bordes para esos elementos cuando
+         * se activa el atributo `data-theme="light"` en el elemento html. De este modo, todas las
+         * tarjetas y cajas adoptan el color claro definido por --color-card y un sombreado más suave.
+         */
+        [data-theme="light"] .hero-left,
+        [data-theme="light"] .hero-right,
+        [data-theme="light"] .hero-card,
+        [data-theme="light"] .card,
+        [data-theme="light"] .zone-box,
+        [data-theme="light"] .step,
+        [data-theme="light"] .why-item,
+        [data-theme="light"] .faq-item,
+        [data-theme="light"] .contact-box,
+        [data-theme="light"] .review-card,
+        [data-theme="light"] .cta-contacto,
+        [data-theme="light"] .assistant-window,
+        [data-theme="light"] .assistant-option,
+        [data-theme="light"] .assistant-input,
+        [data-theme="light"] .assistant-input input {
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            /* Sombra más ligera para modo claro */
+            box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12);
+            color: var(--color-text);
+        }
+
+        /* Pequeños chips, etiquetas y pastillas adoptan un tono suave en modo claro */
+        [data-theme="light"] .hero-pill,
+        [data-theme="light"] .hero-chip,
+        [data-theme="light"] .zone-pill,
+        [data-theme="light"] .tag,
+        [data-theme="light"] .assistant-option {
+            background: var(--color-bg-soft);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
+        }
+
+        /* Campos de formulario en tema claro */
+        [data-theme="light"] input,
+        [data-theme="light"] textarea {
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+        }
+        [data-theme="light"] input::placeholder,
+        [data-theme="light"] textarea::placeholder {
+            color: var(--color-muted);
+        }
+
+        /* Barra de contacto flotante en tema claro */
+        [data-theme="light"] .contact-bar {
+            background: rgba(243, 244, 246, 0.92);
+            border: 1px solid var(--color-border);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
+        }
+        [data-theme="light"] .contact-bar a:last-child {
+            background: var(--color-card);
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
         }
 
         * {
@@ -91,10 +207,13 @@
         }
 
         html, body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-            background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
+            /* Usamos la fuente Poppins para un aspecto moderno, con fallback a fuentes del sistema */
+            font-family: 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            /* Degradado de fondo controlado por variables para permitir tema claro/oscuro */
+            background: radial-gradient(circle at top, var(--color-bg) 0, var(--color-bg-soft) 55%, #000 100%);
             color: var(--color-text);
             scroll-behavior: smooth;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         body {
@@ -153,6 +272,10 @@
             /* Hacemos el nombre más grande para que destaque como protagonista */
             font-size: 1.75rem;
             letter-spacing: 0.02em;
+    /* Aseguramos que cada palabra del nombre aparece con la inicial en mayúscula.  Esto
+       replica el estilo de presentación de la página de Facebook y refuerza el
+       reconocimiento de marca */
+    text-transform: capitalize;
         }
 
         /* Estilo del símbolo de marca (TM/®) para que aparezca pequeño y elevado al lado del nombre */
@@ -278,8 +401,9 @@
         }
 
         .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 16px 30px rgba(16, 185, 129, 0.45);
+            /* Micro-interacción más marcada: elevación suave y sombra pronunciada */
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 20px 36px rgba(16, 185, 129, 0.50);
         }
 
         .btn-outline {
@@ -290,7 +414,138 @@
 
         .btn-outline:hover {
             background: rgba(15, 23, 42, 0.95);
-            transform: translateY(-1px);
+            /* Micro-interacción más marcada para botones outline */
+            transform: translateY(-3px) scale(1.03);
+        }
+
+        /*
+         * Estilos personalizados para las llamadas y el WhatsApp
+         *
+         * Las tendencias de diseño web actuales recomiendan botones de llamada a la acción
+         * con colores vivos y fácilmente identificables【648118559576656†L288-L314】.  Los tonos
+         * azules transmiten confianza y profesionalidad【648118559576656†L311-L319】, por lo que los botones
+         * para llamar adoptan un degradado azul.  Para los mensajes de WhatsApp se emplean
+         * los tonos verdes de la marca para reforzar la coherencia visual.  Ambos incluyen
+         * micro‑interacciones de elevación y sombra para transmitir la sensación de un
+         * elemento pulsable de alta calidad【463813630266955†L448-L474】.
+         */
+        .btn-call {
+            background: linear-gradient(135deg, var(--color-call), var(--color-call-soft));
+            color: #ffffff;
+            box-shadow: 0 12px 26px rgba(59, 130, 246, 0.35);
+        }
+        .btn-call:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 20px 36px rgba(59, 130, 246, 0.50);
+        }
+
+        .btn-whatsapp {
+            background: linear-gradient(135deg, var(--color-whatsapp), var(--color-whatsapp-soft));
+            color: #022c22;
+            box-shadow: 0 12px 26px rgba(34, 197, 94, 0.35);
+        }
+        .btn-whatsapp:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 20px 36px rgba(34, 197, 94, 0.50);
+        }
+
+        /*
+         * Pequeñas pastillas (pills) con iconos para el encabezado y otros enlaces
+         * Estas versiones compactas de los botones se utilizan, por ejemplo, para el
+         * número de teléfono en la cabecera. Siguen la tendencia de diseño de
+         * incorporar iconos y colores vivos en llamadas a la acción, pero en un
+         * formato más discreto【648118559576656†L288-L314】.  Al igual que los botones
+         * principales, incluyen micro‑interacciones de elevación y sombra【463813630266955†L448-L474】.
+         */
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: var(--radius-full);
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid var(--color-border);
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
+            white-space: nowrap;
+        }
+        .pill svg {
+            width: 0.9em;
+            height: 0.9em;
+            flex-shrink: 0;
+        }
+        .pill-call {
+            background: linear-gradient(135deg, var(--color-call), var(--color-call-soft));
+            color: #ffffff;
+            box-shadow: 0 6px 14px rgba(59, 130, 246, 0.35);
+        }
+        .pill-call:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.50);
+        }
+
+        /*
+         * Botones de redes sociales
+         * Se colocan en el área de contacto para enlazar a las reseñas de Google y
+         * a los perfiles de Instagram y Facebook del negocio.  Utilizamos colores
+         * corporativos basados en los propios de cada marca, junto con
+         * micro‑interacciones para indicar pulsación【463813630266955†L448-L474】.  El
+         * color blanco para el icono garantiza contraste en todos los temas.
+         */
+        .btn-social {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            color: #ffffff;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+        .btn-social svg {
+            width: 1em;
+            height: 1em;
+            flex-shrink: 0;
+        }
+        .btn-social:hover {
+            transform: translateY(-2px) scale(1.05);
+        }
+        .btn-google {
+            /* Tonos azulados de Google */
+            background: linear-gradient(135deg, #4285F4, #2A77D4);
+            box-shadow: 0 6px 14px rgba(66, 133, 244, 0.35);
+        }
+        .btn-google:hover {
+            box-shadow: 0 10px 20px rgba(66, 133, 244, 0.50);
+        }
+        .btn-instagram {
+            /* Degradado inspirado en Instagram */
+            background: linear-gradient(135deg, #E1306C, #FD1D1D);
+            box-shadow: 0 6px 14px rgba(225, 48, 108, 0.35);
+        }
+        .btn-instagram:hover {
+            box-shadow: 0 10px 20px rgba(225, 48, 108, 0.50);
+        }
+        .btn-facebook {
+            /* Azul característico de Facebook */
+            background: linear-gradient(135deg, #1877F2, #0E5ED6);
+            box-shadow: 0 6px 14px rgba(24, 119, 242, 0.35);
+        }
+        .btn-facebook:hover {
+            box-shadow: 0 10px 20px rgba(24, 119, 242, 0.50);
+        }
+
+        /* Ajuste de tamaño y separación de los iconos en los botones */
+        .btn-call svg,
+        .btn-whatsapp svg {
+            width: 1em;
+            height: 1em;
+            margin-right: 6px;
+            flex-shrink: 0;
         }
 
         .hero-note {
@@ -1031,10 +1286,18 @@
         <div class="header-contact">
             <!-- Información básica de ubicación y contacto siempre visible -->
             <span class="badge-pill">Toledo y pueblos cercanos</span>
-            <!-- Teléfono como enlace clicable para llamar desde móvil -->
-            <a href="tel:+34629560729" class="badge-pill"><strong>629&nbsp;560&nbsp;729</strong></a>
+        <!-- Teléfono como enlace clicable para llamar desde móvil con icono y color azulado -->
+            <a href="tel:+34614832668" class="pill pill-call" aria-label="Llamar al 614 832 668">
+                <!-- Icono de teléfono incluido directamente para una mayor coherencia visual -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"></path>
+                </svg>
+                <span>614&nbsp;832&nbsp;668</span>
+            </a>
             <!-- Enlace directo al formulario de contacto -->
             <a href="#contacto" class="badge-pill">Contacto</a>
+            <!-- Botón para alternar el tema claro/oscuro -->
+            <button id="theme-toggle" class="badge-pill" aria-label="Cambiar tema">🌙</button>
         </div>
     </header>
 
@@ -1053,8 +1316,18 @@
                     Reparación y puesta a punto de ordenadores, instalación de Windows y Linux, y <strong>pequeños arreglos del hogar</strong> (muebles, lámparas, cortinas, estanterías y más). Sin call centers, trato directo y explicaciones claras.
                 </p>
                 <div class="hero-cta">
-                    <a href="tel:+34629560729" class="btn btn-primary">Llamar ahora</a>
-                    <a href="https://wa.me/34629560729?text=Hola,%20he%20visto%20tu%20web%20y%20quiero%20pedir%20presupuesto." class="btn btn-outline">Escribir por WhatsApp</a>
+                    <a href="tel:+34614832668" class="btn btn-call">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"></path>
+                        </svg>
+                        Llamar ahora
+                    </a>
+                    <a href="https://wa.me/34614832668?text=Hola,%20he%20visto%20tu%20web%20y%20quiero%20pedir%20presupuesto." class="btn btn-whatsapp">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"></path>
+                        </svg>
+                        Escribir por WhatsApp
+                    </a>
                 </div>
                 <p class="hero-note">
                     <strong>Presupuesto orientativo</strong> por teléfono o WhatsApp. Sin compromiso.
@@ -1229,8 +1502,18 @@
                     </p>
                     <div class="hero-cta" style="margin-top:8px;">
                         <!-- CTAs sin emojis para una apariencia profesional -->
-                        <a href="tel:+34629560729" class="btn btn-primary">Llamar ahora</a>
-                        <a href="https://wa.me/34629560729?text=Hola,%20tengo%20un%20problema%20con%20mi%20ordenador%20en%20la%20zona%20de%20Toledo%20y%20quiero%20pedir%20presupuesto." class="btn btn-outline">Mensaje por WhatsApp</a>
+                        <a href="tel:+34614832668" class="btn btn-call">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"></path>
+                            </svg>
+                            Llamar ahora
+                        </a>
+                        <a href="https://wa.me/34614832668?text=Hola,%20tengo%20un%20problema%20con%20mi%20ordenador%20en%20la%20zona%20de%20Toledo%20y%20quiero%20pedir%20presupuesto." class="btn btn-whatsapp">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"></path>
+                            </svg>
+                            Mensaje por WhatsApp
+                        </a>
                     </div>
                 </article>
             </div>
@@ -1476,21 +1759,54 @@
                     <div class="contact-row">
                         <div>
                             <div class="contact-label">Teléfono</div>
-                            <div class="contact-value">629&nbsp;560&nbsp;729</div>
+                            <div class="contact-value">614&nbsp;832&nbsp;668</div>
                         </div>
-                        <a href="tel:+34629560729" class="btn btn-outline">Llamar</a>
+                        <a href="tel:+34614832668" class="btn btn-call">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"></path>
+                            </svg>
+                            Llamar
+                        </a>
                     </div>
                     <div class="contact-row">
                         <div>
                             <div class="contact-label">WhatsApp</div>
                             <div class="contact-value">Mensaje directo</div>
                         </div>
-                        <a href="https://wa.me/34629560729?text=Hola,%20he%20visto%20tu%20web%20El%20Manitas%20Informático%20y%20quiero%20pedir%20presupuesto." class="btn btn-outline">Abrir WhatsApp</a>
+                        <a href="https://wa.me/34614832668?text=Hola,%20he%20visto%20tu%20web%20El%20Manitas%20Informático%20y%20quiero%20pedir%20presupuesto." class="btn btn-whatsapp">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"></path>
+                            </svg>
+                            Abrir WhatsApp
+                        </a>
                     </div>
                     <div class="contact-row">
                         <div>
                             <div class="contact-label">Correo electrónico</div>
                             <div class="contact-value">elmanitasinformatico.es@gmail.com</div>
+                        </div>
+                    </div>
+                    <!-- Filas de redes sociales: enlaces a Google, Instagram y Facebook -->
+                    <div class="contact-row social-row">
+                        <div>
+                            <div class="contact-label">Redes</div>
+                            <div class="contact-value" style="display:flex; gap:10px; align-items:center;">
+                                <a href="https://share.google/cUWox32vQD8bbuiys" class="btn-social btn-google" target="_blank" rel="noopener" aria-label="Ver reseñas en Google">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z"></path>
+                                    </svg>
+                                </a>
+                                <a href="https://www.instagram.com/elmanitasinformatico/#" class="btn-social btn-instagram" target="_blank" rel="noopener" aria-label="Instagram">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+                                    </svg>
+                                </a>
+                                <a href="https://www.facebook.com/profile.php?id=61583535436382&locale=es_ES" class="btn-social btn-facebook" target="_blank" rel="noopener" aria-label="Facebook">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"/>
+                                    </svg>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <p class="info-note">
@@ -1549,6 +1865,31 @@
         const assistantInput = document.getElementById('assistant-text');
         const assistantSend = document.getElementById('assistant-send');
 
+        // Gestión de tema claro/oscuro
+        const themeToggle = document.getElementById('theme-toggle');
+        /**
+         * Aplica el tema dado y actualiza el icono del botón
+         * @param {string} theme 'dark' o 'light'
+         */
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            if (themeToggle) {
+                themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+            }
+        }
+        // Inicializa el tema a partir de localStorage o por defecto a oscuro
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+        // Cambia de tema al hacer clic en el botón
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'dark' ? 'light' : 'dark';
+                setTheme(next);
+            });
+        }
+
         /**
          * Función para añadir un mensaje al historial del asistente.
          * @param {string} content Contenido del mensaje
@@ -1600,9 +1941,14 @@
             ctaContainer.style.marginTop = '10px';
             ctaContainer.style.display = 'flex';
             ctaContainer.style.gap = '10px';
+            // CTA: se utilizan las nuevas clases de botón personalizadas con iconos
             ctaContainer.innerHTML =
-                '<a href="tel:+34629560729" class="badge-pill" style="background: rgba(31,41,55,0.9); color: #ffffff; padding: 6px 12px; border-radius: 999px;">Llamar</a>' +
-                '<a href="https://wa.me/34629560729?text=Hola,%20tengo%20una%20consulta" class="badge-pill" style="background: rgba(31,41,55,0.9); color: #ffffff; padding: 6px 12px; border-radius: 999px;">WhatsApp</a>';
+                '<a href="tel:+34614832668" class="btn btn-call" style="font-size:0.75rem;padding:6px 12px;">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"></path></svg>' +
+                'Llamar</a>' +
+                '<a href="https://wa.me/34614832668?text=Hola,%20tengo%20una%20consulta" class="btn btn-whatsapp" style="font-size:0.75rem;padding:6px 12px;">' +
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"></path></svg>' +
+                'WhatsApp</a>';
             assistantConversation.appendChild(ctaContainer);
             assistantConversation.scrollTop = assistantConversation.scrollHeight;
         }
