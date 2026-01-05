@@ -1050,6 +1050,65 @@
         .contact-box-inline .contact-row:nth-child(2) {
             display: none;
         }
+
+        /* 
+         * Ajustes responsivos para dispositivos móviles.
+         * En pantallas pequeñas (< 600px) reorganizamos el encabezado,
+         * reducimos tamaños y ampliamos el asistente para que no se salga del área de visualización.
+         */
+        @media (max-width: 600px) {
+            /* Encabezado en columna para mayor adaptabilidad */
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            /* Reduce el tamaño del logotipo para que no ocupe demasiado en móviles */
+            .brand-logo {
+                width: 80px;
+                height: 80px;
+            }
+            .brand-name {
+                font-size: 1.4rem;
+            }
+            /* Ajusta el paddding de la sección héroe */
+            .hero-left {
+                padding: 1rem;
+            }
+            .hero {
+                gap: 1.2rem;
+            }
+            /* Botón del asistente más pequeño y cerca del borde inferior */
+            .assistant-btn {
+                bottom: 20px;
+                right: 10px;
+                font-size: 0.75rem;
+                padding: 8px 14px;
+            }
+            /* Ventana del asistente adaptada a pantallas estrechas */
+            .assistant-window {
+                bottom: 70px;
+                right: 10px;
+                width: 90vw;
+                max-height: 60vh;
+            }
+            .assistant-header {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+            .assistant-conversation {
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+            .assistant-input input {
+                padding: 4px 10px;
+                font-size: 0.8rem;
+            }
+            .assistant-input button {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
