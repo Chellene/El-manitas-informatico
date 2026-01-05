@@ -1730,14 +1730,38 @@ document.addEventListener('DOMContentLoaded', function () {
 	        }
 	    }
 	
-	    async function askOpenAI(question) {
-	        const controller = new AbortController();
-	        const timeout = setTimeout(() => controller.abort(), 14000);
+    async function askOpenAI(question) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 14000);
         try {
+            // Construir historial para enviar al Worker. Tomamos los
+            // mensajes visibles en el chat (sin los indicadores de escritura)
+            // y los convertimos a formato { role: 'user' | 'assistant', content: '...' }.
+            const history = [];
+            const nodes = assistantConversation.querySelectorAll('.message');
+            nodes.forEach(el => {
+                if (el.classList.contains('typing')) return;
+                const text = (el.textContent || '').trim();
+                if (!text) return;
+                if (el.classList.contains('user')) {
+                    history.push({ role: 'user', content: text });
+                } else {
+                    history.push({ role: 'assistant', content: text });
+                }
+            });
+            // Solo enviamos las últimas 10 entradas para limitar tamaño
+            let trimmedHistory = history.slice(-10);
+            // Evita duplicar el mensaje actual en la historia. Si el
+            // último elemento del historial es el mismo texto y rol de
+            // usuario que la pregunta enviada, lo eliminamos.
+            const lastItem = trimmedHistory[trimmedHistory.length - 1];
+            if (lastItem && lastItem.role === 'user' && lastItem.content === question) {
+                trimmedHistory = trimmedHistory.slice(0, -1);
+            }
             const res = await fetch(WORKER_CHAT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: question }),
+                body: JSON.stringify({ message: question, history: trimmedHistory }),
                 signal: controller.signal
             });
             if (!res.ok) return null;
@@ -1748,7 +1772,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } finally {
             clearTimeout(timeout);
         }
-	    }
+    }
 
     /**
      * Procesa un mensaje del usuario y genera una respuesta.
