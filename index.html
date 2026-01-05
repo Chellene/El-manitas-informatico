@@ -904,6 +904,37 @@
             cursor: not-allowed;
         }
 
+        /* Estilos para los botones de acción del asistente (CTA)
+         * Utilizamos colores oficiales de WhatsApp y el rojo de la
+         * paleta para llamadas. Los iconos se insertan en línea desde
+         * el script mediante SVG.*/
+        .assistant-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .assistant-action.whatsapp {
+            background-color: #25D366; /* color oficial de WhatsApp */
+            color: #ffffff;
+        }
+        .assistant-action.whatsapp:hover {
+            background-color: #1DA851;
+        }
+        .assistant-action.call {
+            background-color: var(--color-call);
+            color: #ffffff;
+        }
+        .assistant-action.call:hover {
+            background-color: var(--color-call-soft);
+        }
+
         /*-----------------------------------------------------------*/
         /* Animaciones globales y elementos dinámicos                */
         /* Estas animaciones se inspiran en los diseños vanguardistas de 2025/2026.
@@ -1634,9 +1665,17 @@ document.addEventListener('DOMContentLoaded', function () {
 	     * Ultra PRO: consulta al Worker de Cloudflare (sin exponer ninguna API key).
 	     * Devuelve la respuesta de la IA o null si falla (para usar fallback).
 	     */
-	    const WORKER_CHAT_URL = 'https://manitas-ai.elmanitasinformatico-es.workers.dev/chat';
-	    const ASSISTANT_STORAGE_KEY = 'manitas_assistant_history_v1';
-	    let isBusy = false;
+    const WORKER_CHAT_URL = 'https://manitas-ai.elmanitasinformatico-es.workers.dev/chat';
+    const ASSISTANT_STORAGE_KEY = 'manitas_assistant_history_v1';
+    let isBusy = false;
+    // Datos de contacto para CTA. Actualiza estos valores si cambian en el futuro.
+    const PHONE_LINK = 'tel:+34614832668';
+    const WHATSAPP_LINK = 'https://wa.me/34614832668?text=Hola,%20tengo%20una%20consulta';
+    // Iconos SVG en línea para WhatsApp y teléfono.  Los iconos se basan en
+    // Bootstrap Icons y se mantienen sin modificar conforme a las guías de uso de
+    // marcas【487893572187248†L39-L52】.
+    const WA_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>';
+    const PHONE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/><path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg>';
 	
 	    function setBusy(state) {
 	        isBusy = state;
@@ -1694,22 +1733,21 @@ document.addEventListener('DOMContentLoaded', function () {
 	    async function askOpenAI(question) {
 	        const controller = new AbortController();
 	        const timeout = setTimeout(() => controller.abort(), 14000);
-	        try {
-	            const res = await fetch(WORKER_CHAT_URL, {
-	                method: 'POST',
-	                headers: { 'Content-Type': 'application/json' },
-	                body: JSON.stringify({ message: question }),
-	                signal: controller.signal
-	            });
-	            if (!res.ok) return null;
-	            const data = await res.json().catch(() => null);
-	            const reply = data && (data.reply || (data.choices && data.choices[0]?.message?.content));
-	            return reply ? String(reply).trim() : null;
-	        } catch (e) {
-	            return null;
-	        } finally {
-	            clearTimeout(timeout);
-	        }
+        try {
+            const res = await fetch(WORKER_CHAT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: question }),
+                signal: controller.signal
+            });
+            if (!res.ok) return null;
+            const data = await res.json().catch(() => null);
+            return data;
+        } catch (e) {
+            return null;
+        } finally {
+            clearTimeout(timeout);
+        }
 	    }
 
     /**
@@ -1718,47 +1756,68 @@ document.addEventListener('DOMContentLoaded', function () {
      * @param {string} message
      */
 	    async function handleUserMessage(message) {
-	        if (isBusy) return;
-	        assistantOptions.style.display = 'none';
-	        setBusy(true);
-	        appendTyping();
-	
-	        // Intento 1: IA real vía Worker
-	        let response = await askOpenAI(message);
+        if (isBusy) return;
+        assistantOptions.style.display = 'none';
+        setBusy(true);
+        appendTyping();
 
-            // Fallback: respuesta inteligente offline (si cae Internet/Worker)
-            if (!response) {
-                // Incluimos una nota breve cuando la IA no está disponible para evitar mensajes largos repetitivos
-                response = generateResponse(message) + '\n\nAhora mismo no puedo acceder a la IA. Escríbeme por WhatsApp: https://wa.me/34614832668';
-            }
-
-            removeTyping();
-            // Evita repetir exactamente la misma respuesta del bot para que la conversación sea más fluida
-            const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
-            const lastBotText = lastBotMsgEl ? lastBotMsgEl.textContent?.trim() : '';
-            if (lastBotText && lastBotText === response.trim()) {
-                // Si la IA repite, sugerimos una pregunta abierta
-                appendMessage('He respondido algo parecido. ¿Puedes concretar un poco más tu problema?', 'bot');
-            } else {
-                appendMessage(response, 'bot');
-            }
-
-	        // CTA ultra pro (siempre visible, sin repetir botones en exceso)
-	        const existingCTA = assistantConversation.querySelector('.assistant-cta');
-	        if (!existingCTA) {
-	            const ctaContainer = document.createElement('div');
-	            ctaContainer.className = 'assistant-cta';
-	            ctaContainer.style.marginTop = '10px';
-	            ctaContainer.style.display = 'flex';
-	            ctaContainer.style.gap = '10px';
-	            ctaContainer.innerHTML =
-	                '<a href="tel:+34614832668" class="btn btn-call" style="font-size:0.75rem;padding:6px 12px;">Llamar</a>' +
-	                '<a href="https://wa.me/34614832668?text=Hola,%20tengo%20una%20consulta" class="btn btn-whatsapp" style="font-size:0.75rem;padding:6px 12px;">WhatsApp</a>';
-	            assistantConversation.appendChild(ctaContainer);
-	        }
-
-	        saveConversation();
-	        setBusy(false);
+        // 1) Llamar al Worker de IA para obtener respuesta y acciones (puede devolver null si falla)
+        let data = await askOpenAI(message);
+        let reply = null;
+        let actions = [];
+        if (data && typeof data === 'object') {
+            if (data.reply) reply = String(data.reply).trim();
+            if (Array.isArray(data.actions)) actions = data.actions;
+        }
+        // 2) Fallback local si no hay respuesta válida
+        if (!reply) {
+            reply = generateResponse(message) + '\n\nAhora mismo no puedo acceder a la IA.';
+            // En fallback siempre ofrecemos las dos vías de contacto
+            actions = [
+                { type: 'whatsapp', label: 'WhatsApp' },
+                { type: 'call', label: 'Llamar' }
+            ];
+        }
+        removeTyping();
+        // Evita repetir exactamente la misma respuesta del bot para que la conversación sea más fluida
+        const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
+        const lastBotText = lastBotMsgEl ? lastBotMsgEl.textContent?.trim() : '';
+        if (lastBotText && lastBotText === reply.trim()) {
+            appendMessage('He respondido algo parecido. ¿Puedes concretar un poco más tu problema?', 'bot');
+        } else {
+            appendMessage(reply, 'bot');
+        }
+        // Eliminar CTA anterior para evitar duplicados
+        const previousCTA = assistantConversation.querySelector('.assistant-cta');
+        if (previousCTA) previousCTA.remove();
+        // Construir CTA según las acciones devueltas por el Worker
+        if (actions && actions.length > 0) {
+            const ctaContainer = document.createElement('div');
+            ctaContainer.className = 'assistant-cta';
+            ctaContainer.style.marginTop = '10px';
+            ctaContainer.style.display = 'flex';
+            ctaContainer.style.gap = '10px';
+            actions.forEach(action => {
+                const anchor = document.createElement('a');
+                anchor.classList.add('assistant-action', action.type);
+                anchor.style.fontSize = '0.75rem';
+                anchor.target = '_blank';
+                if (action.type === 'call') {
+                    anchor.href = PHONE_LINK;
+                    anchor.innerHTML = PHONE_SVG + '<span>' + (action.label || 'Llamar') + '</span>';
+                } else if (action.type === 'whatsapp') {
+                    anchor.href = WHATSAPP_LINK;
+                    anchor.innerHTML = WA_SVG + '<span>' + (action.label || 'WhatsApp') + '</span>';
+                } else {
+                    anchor.href = '#';
+                    anchor.textContent = action.label || 'Contacto';
+                }
+                ctaContainer.appendChild(anchor);
+            });
+            assistantConversation.appendChild(ctaContainer);
+        }
+        saveConversation();
+        setBusy(false);
 	    }
 
 	    function sendCustomMessage() {
