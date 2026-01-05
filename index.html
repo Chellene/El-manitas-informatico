@@ -1612,19 +1612,19 @@ document.addEventListener('DOMContentLoaded', function () {
     function generateResponse(msg) {
         const lower = msg.toLowerCase();
         if (lower.includes('lento')) {
-            return 'Tu equipo podría necesitar limpieza interna, optimización del sistema y quizá un SSD para ganar velocidad. ¿Te llamo o prefieres WhatsApp?';
+            return 'Tu equipo podría necesitar limpieza interna, optimización del sistema y quizá un SSD para ganar velocidad. ¿Te pasa en más de un programa o solo en uno?';
         }
         if (lower.includes('ssd') || lower.includes('disco')) {
-            return 'Puedo asesorarte para elegir el SSD adecuado y clonar tu sistema sin perder datos. ¿Te contactamos?';
+            return 'Puedo asesorarte para elegir el SSD adecuado y clonar tu sistema sin perder datos. ¿Qué modelo es y qué sistema usas (Windows 10/11)?';
         }
         if (lower.includes('wifi') || lower.includes('wi-fi') || lower.includes('wi fi')) {
             return 'Podemos mejorar tu cobertura Wi‑Fi instalando repetidores o cambiando el router. ¿Te llamo o WhatsApp?';
         }
         if (lower.includes('formate') || lower.includes('windows') || lower.includes('window')) {
-            return 'Realizo un formateo completo con instalación de Windows y guardo tus datos cuando es posible. ¿Prefieres que te llame?';
+            return 'Realizo un formateo completo con instalación de Windows y guardo tus datos cuando es posible. ¿Sale algún código de error o mensaje concreto?';
         }
         if (lower.includes('virus') || lower.includes('malware') || lower.includes('publicidad')) {
-            return 'Elimino malware y configuro tu equipo para evitar futuras infecciones. ¿Quieres que hablemos por teléfono?';
+            return 'Elimino malware y configuro tu equipo para evitar futuras infecciones. ¿Te empezó de repente o tras instalar algo?';
         }
         // Respuesta genérica para otras consultas
         return 'Cuéntame tu problema (PC lento, no arranca, virus, Wi‑Fi, impresoras...) y preparamos la mejor solución. ¿Quieres que te llame o prefieres WhatsApp?';
@@ -1729,10 +1729,34 @@ document.addEventListener('DOMContentLoaded', function () {
             // Fallback: respuesta inteligente offline (si cae Internet/Worker)
             if (!response) {
                 // Incluimos una nota breve cuando la IA no está disponible para evitar mensajes largos repetitivos
-                response = generateResponse(message) + '\n\nAhora mismo no puedo acceder a la IA. Escríbeme por WhatsApp: https://wa.me/34614832668';
+                response = generateResponse(message) + '\n\nAhora mismo estoy en modo offline. Si quieres, usa los botones de abajo y lo vemos en 1 minuto.';
             }
 
             removeTyping();
+
+// Limpia links de la respuesta (los CTAs van en botones, no en texto)
+function sanitizeReply(t) {
+    t = String(t || '').trim();
+    // Quita URLs y menciones directas a WhatsApp/teléfono dentro del texto del bot
+    t = t.replace(/https?:\/\/(?:wa\.me|api\.whatsapp\.com)\/\S+/gi, '');
+    t = t.replace(/\bwa\.me\/\S+/gi, '');
+    t = t.replace(/\bhttps?:\/\/\S+/gi, '');
+    t = t.replace(/\b\+?34\s*614\s*83\s*26\s*68\b/g, '');
+    t = t.replace(/\b614\s*83\s*26\s*68\b/g, '');
+    // Limpia espacios sobrantes
+    t = t.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    return t;
+}
+
+response = sanitizeReply(response);
+
+            // Evita respuestas kilométricas
+                const MAX = 900;
+                if (t.length > MAX) t = t.slice(0, MAX).trim() + '…';
+                return t;
+            };
+            response = sanitizeReply(response);
+
             // Evita repetir exactamente la misma respuesta del bot para que la conversación sea más fluida
             const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
             const lastBotText = lastBotMsgEl ? lastBotMsgEl.textContent?.trim() : '';
