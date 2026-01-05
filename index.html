@@ -840,7 +840,10 @@
         .scroll-top-btn {
             position: fixed;
             bottom: 20px;
-            right: 20px;
+            /* Reubicamos la flecha de scroll hacia arriba en la esquina izquierda
+               para que no se solape con el botón del asistente. */
+            left: 20px;
+            right: auto;
             background: var(--color-accent);
             color: #022c22;
             border-radius: var(--radius-full);
