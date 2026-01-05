@@ -1880,8 +1880,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const offsetY = window.pageYOffset;
         parallaxElems.forEach(el => {
             const speed = parseFloat(el.dataset.speed) || 0.5;
-            // Mover en sentido opuesto al scroll para un efecto sutil
-            el.style.transform = `translateY(${-offsetY * speed}px)`;
+            // En pantallas pequeñas (móvil), desactivamos el efecto parallax para evitar
+            // superposiciones de la imagen sobre otros elementos al hacer scroll.
+            if (window.innerWidth <= 600) {
+                el.style.transform = '';
+            } else {
+                // Mover en sentido opuesto al scroll para un efecto sutil
+                el.style.transform = `translateY(${-offsetY * speed}px)`;
+            }
         });
     }
     if (parallaxElems.length > 0) {
