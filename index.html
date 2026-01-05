@@ -1554,396 +1554,343 @@
     </div>
 </div>
 <script>
-// Ejecuta el código cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', function () {
-    // ----- Fecha en el footer -----
-    document.getElementById('year').textContent = new Date().getFullYear();
+document.addEventListener('DOMContentLoaded', () => {
+  // ===== Footer year =====
+  const yearEl = document.getElementById('year');
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
-    // ----- Gestión de tema claro/oscuro -----
-    const themeToggle = document.getElementById('theme-toggle');
-    /**
-     * Aplica el tema y guarda la preferencia en localStorage
-     * @param {string} theme - 'dark' o 'light'
-     */
-    function setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-        if (themeToggle) {
-            themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
-        }
+  // ===== Theme =====
+  const themeToggle = document.getElementById('theme-toggle');
+  function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('theme', theme); } catch {}
+    if (themeToggle) themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
+  }
+  const savedTheme =
+    (()=>{
+      try { return localStorage.getItem('theme'); } catch { return null; }
+    })() ||
+    ((window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark');
+  setTheme(savedTheme);
+  if (themeToggle) {
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      setTheme(current === 'dark' ? 'light' : 'dark');
+    });
+  }
+
+  // ===== Assistant =====
+  const assistantBtn = document.getElementById('assistant-btn');
+  const assistantWindow = document.getElementById('assistant-window');
+  const assistantClose = document.getElementById('assistant-close');
+  const assistantOptions = document.getElementById('assistant-options');
+  const assistantConversation = document.getElementById('assistant-conversation');
+  const assistantInput = document.getElementById('assistant-text');
+  const assistantSend = document.getElementById('assistant-send');
+
+  const WORKER_CHAT_URL = 'https://manitas-ai.elmanitasinformatico-es.workers.dev/chat';
+  const ASSISTANT_STORAGE_KEY = 'manitas_assistant_history_v2';
+  let isBusy = false;
+
+  function setBusy(state) {
+    isBusy = state;
+    if (assistantSend) assistantSend.disabled = state;
+    if (assistantInput) assistantInput.disabled = state;
+  }
+
+  function appendMessage(content, sender) {
+    if (!assistantConversation) return;
+    const msg = document.createElement('div');
+    msg.classList.add('message', sender);
+    msg.textContent = String(content || '');
+    assistantConversation.appendChild(msg);
+    assistantConversation.scrollTop = assistantConversation.scrollHeight;
+  }
+
+  function appendTyping() {
+    if (!assistantConversation) return null;
+    const existing = assistantConversation.querySelector('.message.typing');
+    if (existing) return existing;
+    const msg = document.createElement('div');
+    msg.classList.add('message', 'bot', 'typing');
+    msg.textContent = 'Escribiendo…';
+    assistantConversation.appendChild(msg);
+    assistantConversation.scrollTop = assistantConversation.scrollHeight;
+    return msg;
+  }
+
+  function removeTyping() {
+    if (!assistantConversation) return;
+    const existing = assistantConversation.querySelector('.message.typing');
+    if (existing) existing.remove();
+  }
+
+  function sanitizeReply(t) {
+    let s = String(t || '').trim();
+    // Quita URLs dentro del texto (los CTAs van en botones)
+    s = s.replace(/https?:\/\/\S+/gi, '');
+    s = s.replace(/\bwa\.me\/\S+/gi, '');
+    s = s.replace(/\b\+?34\s*614\s*83\s*26\s*68\b/g, '');
+    s = s.replace(/\b614\s*83\s*26\s*68\b/g, '');
+    s = s.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+    return s;
+  }
+
+  function clampReply(t) {
+    let s = String(t || '').trim();
+    const MAX = 900;
+    if (s.length > MAX) s = s.slice(0, MAX).trim() + '…';
+    return s;
+  }
+
+  function saveConversation() {
+    try {
+      if (!assistantConversation) return;
+      const items = [...assistantConversation.querySelectorAll('.message')]
+        .filter(el => !el.classList.contains('typing'))
+        .map(el => ({
+          sender: el.classList.contains('user') ? 'user' : 'bot',
+          text: el.textContent || ''
+        }))
+        .slice(-30);
+      localStorage.setItem(ASSISTANT_STORAGE_KEY, JSON.stringify(items));
+    } catch {}
+  }
+
+  function restoreConversation() {
+    try {
+      const raw = localStorage.getItem(ASSISTANT_STORAGE_KEY);
+      if (!raw) return false;
+      const items = JSON.parse(raw);
+      if (!Array.isArray(items) || items.length === 0) return false;
+      assistantConversation.innerHTML = '';
+      for (const it of items) appendMessage(it.text, it.sender === 'user' ? 'user' : 'bot');
+      return true;
+    } catch {
+      return false;
     }
-    const savedTheme = localStorage.getItem('theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    setTheme(savedTheme);
-    if (themeToggle) {
-        themeToggle.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            setTheme(next);
-        });
+  }
+
+  function ensureCTAButtons() {
+    if (!assistantConversation) return;
+    const existingCTA = assistantConversation.querySelector('.assistant-cta');
+    if (existingCTA) return;
+    const cta = document.createElement('div');
+    cta.className = 'assistant-cta';
+    cta.style.marginTop = '10px';
+    cta.style.display = 'flex';
+    cta.style.gap = '10px';
+    cta.innerHTML =
+      '<a href="tel:+34614832668" class="btn btn-call" style="font-size:0.8rem;padding:8px 12px;flex:1;justify-content:center;">Llamar</a>' +
+      '<a href="https://wa.me/34614832668?text=Hola,%20tengo%20una%20consulta" class="btn btn-whatsapp" style="font-size:0.8rem;padding:8px 12px;flex:1;justify-content:center;">WhatsApp</a>';
+    assistantConversation.appendChild(cta);
+  }
+
+  function generateOfflineResponse(msg) {
+    const lower = String(msg || '').toLowerCase();
+    if (lower.includes('lento')) {
+      return 'Suena a falta de mantenimiento o a disco duro viejo. Lo típico: 1) reviso salud del disco, 2) limpieza de inicio, 3) si aún va lento, SSD y queda nuevo. ¿Windows 10 u 11?';
     }
-
-    // ----- Asistente virtual -----
-    const assistantBtn = document.getElementById('assistant-btn');
-    const assistantWindow = document.getElementById('assistant-window');
-    const assistantClose = document.getElementById('assistant-close');
-    const assistantOptions = document.getElementById('assistant-options');
-    const assistantConversation = document.getElementById('assistant-conversation');
-    const assistantInput = document.getElementById('assistant-text');
-    const assistantSend = document.getElementById('assistant-send');
-
-    /**
-     * Añade un mensaje al área de conversación
-     * @param {string} content Contenido del mensaje
-     * @param {string} sender  'user' o 'bot' para aplicar estilos
-     */
-    function appendMessage(content, sender) {
-        const msg = document.createElement('div');
-        msg.classList.add('message', sender);
-        msg.textContent = content;
-        assistantConversation.appendChild(msg);
-        assistantConversation.scrollTop = assistantConversation.scrollHeight;
+    if (lower.includes('wifi') || lower.includes('wi-fi') || lower.includes('router')) {
+      return 'Puede ser cobertura o saturación de canal. Pista rápida: reinicia router, prueba 5 GHz cerca, y dime si el problema es en una sola habitación o en toda la casa.';
     }
-
-    /**
-     * Genera una respuesta automática en función de palabras clave
-     * @param {string} msg
-     * @returns {string}
-     */
-    function generateResponse(msg) {
-        const lower = msg.toLowerCase();
-        if (lower.includes('lento')) {
-            return 'Tu equipo podría necesitar limpieza interna, optimización del sistema y quizá un SSD para ganar velocidad. ¿Te pasa en más de un programa o solo en uno?';
-        }
-        if (lower.includes('ssd') || lower.includes('disco')) {
-            return 'Puedo asesorarte para elegir el SSD adecuado y clonar tu sistema sin perder datos. ¿Qué modelo es y qué sistema usas (Windows 10/11)?';
-        }
-        if (lower.includes('wifi') || lower.includes('wi-fi') || lower.includes('wi fi')) {
-            return 'Podemos mejorar tu cobertura Wi‑Fi instalando repetidores o cambiando el router. ¿Te llamo o WhatsApp?';
-        }
-        if (lower.includes('formate') || lower.includes('windows') || lower.includes('window')) {
-            return 'Realizo un formateo completo con instalación de Windows y guardo tus datos cuando es posible. ¿Sale algún código de error o mensaje concreto?';
-        }
-        if (lower.includes('virus') || lower.includes('malware') || lower.includes('publicidad')) {
-            return 'Elimino malware y configuro tu equipo para evitar futuras infecciones. ¿Te empezó de repente o tras instalar algo?';
-        }
-        // Respuesta genérica para otras consultas
-        return 'Cuéntame tu problema (PC lento, no arranca, virus, Wi‑Fi, impresoras...) y preparamos la mejor solución. ¿Quieres que te llame o prefieres WhatsApp?';
+    if (lower.includes('virus') || lower.includes('malware') || lower.includes('publicidad')) {
+      return 'Tiene pinta de adware. Yo miraría: extensiones raras, programas instalados recientemente y el inicio de Windows. ¿Te salta en Chrome/Edge o en todo?';
     }
+    if (lower.includes('no arranca') || lower.includes('pantalla azul') || lower.includes('se reinicia') || lower.includes('no enciende')) {
+      return 'Eso ya huele a fallo de arranque/energía/ram/disco. Para acotar: ¿hace pitidos/luces? ¿llega a salir el logo o se queda negro?';
+    }
+    return 'Vale, te sigo. Dime el síntoma exacto y desde cuándo (y si es PC o portátil) y te digo el siguiente paso para acotarlo.';
+  }
 
-	    /**
-	     * Ultra PRO: consulta al Worker de Cloudflare (sin exponer ninguna API key).
-	     * Devuelve la respuesta de la IA o null si falla (para usar fallback).
-	     */
-	    const WORKER_CHAT_URL = 'https://manitas-ai.elmanitasinformatico-es.workers.dev/chat';
-	    const ASSISTANT_STORAGE_KEY = 'manitas_assistant_history_v1';
-	    let isBusy = false;
-	
-	    function setBusy(state) {
-	        isBusy = state;
-	        if (assistantSend) assistantSend.disabled = state;
-	        if (assistantInput) assistantInput.disabled = state;
-	    }
-	
-	    function appendTyping() {
-	        // Evita duplicados
-	        const existing = assistantConversation.querySelector('.message.typing');
-	        if (existing) return existing;
-	        const msg = document.createElement('div');
-	        msg.classList.add('message', 'bot', 'typing');
-	        msg.textContent = 'Escribiendo';
-	        assistantConversation.appendChild(msg);
-	        assistantConversation.scrollTop = assistantConversation.scrollHeight;
-	        return msg;
-	    }
-	
-	    function removeTyping() {
-	        const existing = assistantConversation.querySelector('.message.typing');
-	        if (existing) existing.remove();
-	    }
-	
-	    function saveConversation() {
-	        try {
-	            // Guardamos solo texto + rol para ser ligeros
-	            const items = [...assistantConversation.querySelectorAll('.message')]
-	                .filter(el => !el.classList.contains('typing'))
-	                .map(el => ({
-	                    sender: el.classList.contains('user') ? 'user' : 'bot',
-	                    text: el.textContent || ''
-	                }))
-	                .slice(-30); // límite para no hinchar storage
-	            localStorage.setItem(ASSISTANT_STORAGE_KEY, JSON.stringify(items));
-	        } catch (e) {}
-	    }
-	
-	    function restoreConversation() {
-	        try {
-	            const raw = localStorage.getItem(ASSISTANT_STORAGE_KEY);
-	            if (!raw) return false;
-	            const items = JSON.parse(raw);
-	            if (!Array.isArray(items) || items.length === 0) return false;
-	            assistantConversation.innerHTML = '';
-	            for (const it of items) {
-	                appendMessage(it.text, it.sender === 'user' ? 'user' : 'bot');
-	            }
-	            return true;
-	        } catch (e) {
-	            return false;
-	        }
-	    }
-	
-	    async function askOpenAI(question) {
-	        const controller = new AbortController();
-	        const timeout = setTimeout(() => controller.abort(), 14000);
-	        try {
-	            const res = await fetch(WORKER_CHAT_URL, {
-	                method: 'POST',
-	                headers: { 'Content-Type': 'application/json' },
-	                body: JSON.stringify({ message: question }),
-	                signal: controller.signal
-	            });
-	            if (!res.ok) return null;
-	            const data = await res.json().catch(() => null);
-	            const reply = data && (data.reply || (data.choices && data.choices[0]?.message?.content));
-	            return reply ? String(reply).trim() : null;
-	        } catch (e) {
-	            return null;
-	        } finally {
-	            clearTimeout(timeout);
-	        }
-	    }
+  async function askWorker(question) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 14000);
+    try {
+      const res = await fetch(WORKER_CHAT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: String(question || '').slice(0, 1500) }),
+        signal: controller.signal
+      });
+      if (!res.ok) return null;
+      const data = await res.json().catch(() => null);
+      const reply = data && data.reply;
+      return reply ? String(reply).trim() : null;
+    } catch {
+      return null;
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
 
-    /**
-     * Procesa un mensaje del usuario y genera una respuesta.
-     * Además inserta botones de CTA para contacto.
-     * @param {string} message
-     */
-	    async function handleUserMessage(message) {
-	        if (isBusy) return;
-	        assistantOptions.style.display = 'none';
-	        setBusy(true);
-	        appendTyping();
-	
-	        // Intento 1: IA real vía Worker
-	        let response = await askOpenAI(message);
+  async function handleUserMessage(message) {
+    if (isBusy) return;
+    if (assistantOptions) assistantOptions.style.display = 'none';
+    setBusy(true);
+    appendTyping();
 
-            // Fallback: respuesta inteligente offline (si cae Internet/Worker)
-            if (!response) {
-                // Incluimos una nota breve cuando la IA no está disponible para evitar mensajes largos repetitivos
-                response = generateResponse(message) + '\n\nAhora mismo estoy en modo offline. Si quieres, usa los botones de abajo y lo vemos en 1 minuto.';
-            }
+    let response = await askWorker(message);
+    if (!response) response = generateOfflineResponse(message);
 
-            removeTyping();
+    removeTyping();
 
-// Limpia links de la respuesta (los CTAs van en botones, no en texto)
-function sanitizeReply(t) {
-    t = String(t || '').trim();
-    // Quita URLs y menciones directas a WhatsApp/teléfono dentro del texto del bot
-    t = t.replace(/https?:\/\/(?:wa\.me|api\.whatsapp\.com)\/\S+/gi, '');
-    t = t.replace(/\bwa\.me\/\S+/gi, '');
-    t = t.replace(/\bhttps?:\/\/\S+/gi, '');
-    t = t.replace(/\b\+?34\s*614\s*83\s*26\s*68\b/g, '');
-    t = t.replace(/\b614\s*83\s*26\s*68\b/g, '');
-    // Limpia espacios sobrantes
-    t = t.replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
-    return t;
-}
+    response = clampReply(sanitizeReply(response));
 
-response = sanitizeReply(response);
-
-            // Evita respuestas kilométricas
-                const MAX = 900;
-                if (t.length > MAX) t = t.slice(0, MAX).trim() + '…';
-                return t;
-            };
-            response = sanitizeReply(response);
-
-            // Evita repetir exactamente la misma respuesta del bot para que la conversación sea más fluida
-            const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
-            const lastBotText = lastBotMsgEl ? lastBotMsgEl.textContent?.trim() : '';
-            if (lastBotText && lastBotText === response.trim()) {
-                // Si la IA repite, sugerimos una pregunta abierta
-                appendMessage('He respondido algo parecido. ¿Puedes concretar un poco más tu problema?', 'bot');
-            } else {
-                appendMessage(response, 'bot');
-            }
-
-	        // CTA ultra pro (siempre visible, sin repetir botones en exceso)
-	        const existingCTA = assistantConversation.querySelector('.assistant-cta');
-	        if (!existingCTA) {
-	            const ctaContainer = document.createElement('div');
-	            ctaContainer.className = 'assistant-cta';
-	            ctaContainer.style.marginTop = '10px';
-	            ctaContainer.style.display = 'flex';
-	            ctaContainer.style.gap = '10px';
-	            ctaContainer.innerHTML =
-	                '<a href="tel:+34614832668" class="btn btn-call" style="font-size:0.75rem;padding:6px 12px;">Llamar</a>' +
-	                '<a href="https://wa.me/34614832668?text=Hola,%20tengo%20una%20consulta" class="btn btn-whatsapp" style="font-size:0.75rem;padding:6px 12px;">WhatsApp</a>';
-	            assistantConversation.appendChild(ctaContainer);
-	        }
-
-	        saveConversation();
-	        setBusy(false);
-	    }
-
-	    function sendCustomMessage() {
-	        const text = assistantInput.value.trim();
-	        if (!text || isBusy) return;
-	        appendMessage(text, 'user');
-	        assistantInput.value = '';
-	        saveConversation();
-	        handleUserMessage(text);
-	    }
-
-    if (assistantBtn && assistantWindow) {
-	        assistantBtn.addEventListener('click', () => {
-	            assistantWindow.classList.toggle('open');
-	            if (assistantWindow.classList.contains('open')) {
-	                // Restaurar historial si existe; si no, mensaje de bienvenida
-	                const restored = restoreConversation();
-	                if (!restored) {
-	                    assistantConversation.innerHTML = '';
-	                    appendMessage('¡Hola! Soy el asistente de El Manitas Informático. Cuéntame tu problema (PC lento, no arranca, WiFi, impresoras, virus...) y te digo el siguiente paso.', 'bot');
-	                }
-	                assistantOptions.style.display = 'none';
-	                assistantInput?.focus();
-	            }
-	        });
-        assistantClose.addEventListener('click', () => {
-            assistantWindow.classList.remove('open');
-        });
-        assistantOptions.addEventListener('click', (e) => {
-            if (e.target.classList.contains('assistant-option')) {
-                const message = e.target.dataset.message;
-                appendMessage(message, 'user');
-                assistantOptions.style.display = 'none';
-                handleUserMessage(message);
-            }
-        });
-        assistantSend.addEventListener('click', sendCustomMessage);
-        assistantInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendCustomMessage();
-            }
-        });
+    // Evita repetir literal lo mismo
+    const lastBot = assistantConversation ? [...assistantConversation.querySelectorAll('.message.bot')].pop() : null;
+    const lastText = lastBot ? (lastBot.textContent || '').trim() : '';
+    if (lastText && lastText === response.trim()) {
+      response = 'Te he contestado algo parecido 😅. ¿Me dices el modelo del equipo y el error exacto (si sale alguno)?';
     }
 
-    // ----- Botón de scroll al inicio -----
-    const scrollBtn = document.getElementById('scroll-top-btn');
-    if (scrollBtn) {
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 400) {
-                scrollBtn.style.display = 'flex';
-            } else {
-                scrollBtn.style.display = 'none';
-            }
-        });
-        scrollBtn.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
-    }
+    appendMessage(response, 'bot');
+    ensureCTAButtons();
+    saveConversation();
+    setBusy(false);
+  }
 
-    // ----- Gestión del consentimiento de cookies -----
-    const cookieBanner = document.getElementById('cookie-banner');
-    const cookieAccept = document.getElementById('cookie-accept');
-    const cookieDecline = document.getElementById('cookie-decline');
+  function openAssistant() {
+    if (!assistantWindow) return;
+    assistantWindow.classList.add('open');
+    const restored = restoreConversation();
+    if (!restored) {
+      if (assistantConversation) assistantConversation.innerHTML = '';
+      appendMessage('¡Buenas! Soy el asistente de El Manitas Informático. Cuéntame qué le pasa a tu PC/portátil y lo acotamos rápido 👨‍🔧', 'bot');
+      ensureCTAButtons();
+      saveConversation();
+    }
+    if (assistantOptions) assistantOptions.style.display = 'none';
+    if (assistantInput) assistantInput.focus();
+  }
 
-    /**
-     * Carga el script de Google Analytics solo cuando se han aceptado las cookies.
-     */
-    function loadAnalytics() {
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-88HQGNRZE5';
-        document.head.appendChild(script);
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-88HQGNRZE5');
-    }
-    const consent = localStorage.getItem('cookie_consent');
-    if (consent === 'accepted') {
-        loadAnalytics();
-    } else if (!consent) {
-        // Mostrar el banner si no hay decisión
-        cookieBanner.style.display = 'flex';
-    }
-    if (cookieAccept) {
-        cookieAccept.addEventListener('click', () => {
-            localStorage.setItem('cookie_consent', 'accepted');
-            cookieBanner.remove();
-            loadAnalytics();
-        });
-    }
-    if (cookieDecline) {
-        cookieDecline.addEventListener('click', () => {
-            localStorage.setItem('cookie_consent', 'declined');
-            cookieBanner.remove();
-        });
-    }
+  function closeAssistant() {
+    if (assistantWindow) assistantWindow.classList.remove('open');
+  }
 
-    // ----- Animaciones al entrar en vista -----
-    // Observa todos los elementos con clase "animate-item" y aplica la clase "visible" cuando
-    // estén al menos un 15 % visibles en el viewport. Esto activa la animación fadeInUp definida en CSS.
-    const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                obs.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.15 });
-    document.querySelectorAll('.animate-item').forEach(el => observer.observe(el));
+  function sendCustomMessage() {
+    const text = (assistantInput ? assistantInput.value : '').trim();
+    if (!text || isBusy) return;
+    appendMessage(text, 'user');
+    if (assistantInput) assistantInput.value = '';
+    saveConversation();
+    handleUserMessage(text);
+  }
 
-    // ----- Parallax en imágenes -----
-    // Para dotar de mayor profundidad visual al sitio, se aplica un efecto parallax a
-    // los elementos con la clase "parallax". El desplazamiento vertical depende del
-    // atributo data-speed establecido en cada elemento y del desplazamiento de la página.
-    const parallaxElems = document.querySelectorAll('.parallax');
-    function parallaxScroll() {
-        const offsetY = window.pageYOffset;
-        parallaxElems.forEach(el => {
-            const speed = parseFloat(el.dataset.speed) || 0.5;
-            // En pantallas pequeñas (móvil), desactivamos el efecto parallax para evitar
-            // superposiciones de la imagen sobre otros elementos al hacer scroll.
-            if (window.innerWidth <= 600) {
-                el.style.transform = '';
-            } else {
-                // Mover en sentido opuesto al scroll para un efecto sutil
-                el.style.transform = `translateY(${-offsetY * speed}px)`;
-            }
-        });
-    }
-    if (parallaxElems.length > 0) {
-        window.addEventListener('scroll', parallaxScroll);
-        // Actualizar inmediatamente tras la carga para que la posición inicial sea coherente
-        parallaxScroll();
-    }
+  if (assistantBtn && assistantWindow) {
+    assistantBtn.addEventListener('click', () => {
+      if (assistantWindow.classList.contains('open')) closeAssistant();
+      else openAssistant();
+    });
+  }
+  if (assistantClose) assistantClose.addEventListener('click', closeAssistant);
+  if (assistantSend) assistantSend.addEventListener('click', sendCustomMessage);
+  if (assistantInput) {
+    assistantInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendCustomMessage();
+      }
+    });
+  }
+  if (assistantOptions) {
+    assistantOptions.addEventListener('click', (e) => {
+      const t = e.target;
+      if (t && t.classList && t.classList.contains('assistant-option')) {
+        const message = t.dataset.message || '';
+        appendMessage(message, 'user');
+        assistantOptions.style.display = 'none';
+        handleUserMessage(message);
+      }
+    });
+  }
 
-    // ----- Efecto tilt 3D en tarjetas -----
-    // Las tarjetas de servicios, precios y cartas del héroe se benefician de un ligero
-    // efecto 3D que responde al movimiento del cursor. Esto mejora la interactividad y
-    // aproxima el diseño a las tendencias de micro‑interacciones para 2026【442663145042366†L640-L652】.
+  // ===== Scroll-to-top button =====
+  const scrollBtn = document.getElementById('scroll-top-btn');
+  if (scrollBtn) {
+    window.addEventListener('scroll', () => {
+      scrollBtn.style.display = (window.scrollY > 400) ? 'flex' : 'none';
+    });
+    scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  }
+
+  // ===== Cookie consent =====
+  const cookieBanner = document.getElementById('cookie-banner');
+  const cookieAccept = document.getElementById('cookie-accept');
+  const cookieDecline = document.getElementById('cookie-decline');
+
+  function loadAnalytics() {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.googletagmanager.com/gtag/js?id=G-88HQGNRZE5';
+    document.head.appendChild(script);
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ window.dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-88HQGNRZE5');
+  }
+
+  let consent = null;
+  try { consent = localStorage.getItem('cookie_consent'); } catch {}
+  if (consent === 'accepted') loadAnalytics();
+  else if (!consent && cookieBanner) cookieBanner.style.display = 'flex';
+
+  if (cookieAccept) cookieAccept.addEventListener('click', () => {
+    try { localStorage.setItem('cookie_consent', 'accepted'); } catch {}
+    if (cookieBanner) cookieBanner.remove();
+    loadAnalytics();
+  });
+  if (cookieDecline) cookieDecline.addEventListener('click', () => {
+    try { localStorage.setItem('cookie_consent', 'declined'); } catch {}
+    if (cookieBanner) cookieBanner.remove();
+  });
+
+  // ===== Animations on view =====
+  const observer = new IntersectionObserver((entries, obs) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        obs.unobserve(entry.target);
+      }
+    }
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.animate-item').forEach(el => observer.observe(el));
+
+  // ===== Parallax (desktop only) =====
+  const parallaxElems = document.querySelectorAll('.parallax');
+  function parallaxScroll() {
+    const offsetY = window.pageYOffset;
+    parallaxElems.forEach(el => {
+      const speed = parseFloat(el.dataset.speed) || 0.5;
+      if (window.innerWidth <= 600) el.style.transform = '';
+      else el.style.transform = `translateY(${-offsetY * speed}px)`;
+    });
+  }
+  if (parallaxElems.length) {
+    window.addEventListener('scroll', parallaxScroll, { passive: true });
+    parallaxScroll();
+  }
+
+  // ===== Tilt (pointer devices only) =====
+  const canHover = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+  if (canHover) {
     function applyTilt(card) {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            // Normalizamos las distancias al rango [-1,1]
-            const normX = (x - centerX) / centerX;
-            const normY = (y - centerY) / centerY;
-            // Intensidad del giro (en grados)
-            const tiltX = normY * -10;
-            const tiltY = normX * 10;
-            card.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
-        });
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const normX = (x - centerX) / centerX;
+        const normY = (y - centerY) / centerY;
+        const tiltX = normY * -10;
+        const tiltY = normX * 10;
+        card.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
     }
-    document.querySelectorAll('.service-card, .pricing-item, .hero-card').forEach(card => applyTilt(card));
+    document.querySelectorAll('.service-card, .pricing-item, .hero-card').forEach(applyTilt);
+  }
 });
 </script>
 </body>
