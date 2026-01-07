@@ -351,6 +351,14 @@
             color: var(--color-muted);
             margin-top: 0.5rem;
         }
+
+        /* Título del formulario de contacto en el héroe */
+        .contact-box .contact-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: var(--color-text);
+        }
         /* Hero image and side panel */
         .hero-right {
             display: flex;
@@ -747,13 +755,20 @@
         }
         .assistant-window {
             position: fixed;
-            bottom: 180px;
+            /* Reducimos la separación inferior para que el chat no desborde la parte superior de la pantalla.
+             * Con bottom: 80px y una altura máxima calculada en función del viewport, el asistente siempre es
+             * completamente visible incluso en portátiles o tablets de baja resolución. */
+            bottom: 80px;
             right: 20px;
-            width: 280px;
-            max-height: 400px;
+            /* Aumentamos el ancho y lo limitamos al ancho de la pantalla menos los márgenes para evitar desbordes */
+            width: 340px;
+            max-width: calc(100vw - 40px);
+            /* La altura máxima se adapta a la altura del viewport para que el chat no se salga por arriba.
+             * Dejamos un margen total de 160px (80 arriba + 80 abajo) para cabecera, barra de tareas, etc. */
+            max-height: calc(100vh - 160px);
             display: none;
             flex-direction: column;
-            /* Usa colores dependientes del tema para que el chat sea legible en modo claro u oscuro */
+            /* Colores adaptados al tema para garantizar legibilidad en modo claro y oscuro */
             background: var(--color-card);
             border: 1px solid var(--color-border);
             border-radius: var(--radius-lg);
@@ -836,6 +851,54 @@
             font-weight: 600;
         }
 
+        /* Acciones rápidas del asistente (botones de llamada, WhatsApp y cita) */
+        .assistant-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 8px 12px;
+            border-top: 1px solid var(--color-border);
+            background: var(--color-card);
+            /* Forzamos que las acciones se distribuyan en tres columnas iguales para que todas las opciones sean visibles
+               en una sola fila siempre que el espacio lo permita. Si el ancho es demasiado pequeño, se irán a la segunda
+               línea de manera ordenada. */
+        }
+        .assistant-action {
+            /* Asigna a cada acción un ancho flexible de un tercio menos el espacio de separación. Esto evita que el
+               tercer botón se esconda fuera de la vista cuando hay poco espacio horizontal. */
+            flex: 1 1 calc(33.333% - 12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-decoration: none;
+            border-radius: var(--radius-lg);
+            padding: 8px 10px;
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-soft);
+            color: var(--color-text);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+        .assistant-action:hover {
+            transform: translateY(-2px);
+        }
+        .assistant-action.wa {
+            background: #25D366;
+            color: #ffffff;
+        }
+        .assistant-action.call {
+            background: #1E88E5;
+            color: #ffffff;
+        }
+        .assistant-action.cita {
+            background: var(--color-accent);
+            color: #022c22;
+        }
+
         /* Botón para volver al inicio */
         .scroll-top-btn {
             position: fixed;
@@ -902,37 +965,6 @@
         .assistant-input button:disabled {
             opacity: 0.55;
             cursor: not-allowed;
-        }
-
-        /* Estilos para los botones de acción del asistente (CTA)
-         * Utilizamos colores oficiales de WhatsApp y el rojo de la
-         * paleta para llamadas. Los iconos se insertan en línea desde
-         * el script mediante SVG.*/
-        .assistant-action {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: var(--radius-full);
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-decoration: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: background-color 0.2s ease, box-shadow 0.2s ease;
-        }
-        .assistant-action.whatsapp {
-            background-color: #25D366; /* color oficial de WhatsApp */
-            color: #ffffff;
-        }
-        .assistant-action.whatsapp:hover {
-            background-color: #1DA851;
-        }
-        .assistant-action.call {
-            background-color: var(--color-call);
-            color: #ffffff;
-        }
-        .assistant-action.call:hover {
-            background-color: var(--color-call-soft);
         }
 
         /*-----------------------------------------------------------*/
@@ -1202,18 +1234,12 @@
                 <p class="hero-sub">
                     Reparación y mantenimiento de ordenadores y portátiles. Instalación de Windows o Linux, actualización a SSD, limpieza interna con pasta térmica y optimización de WiFi. Todo sin moverte de casa.
                 </p>
-                <div class="hero-cta">
-                    <a href="tel:+34614832668" class="btn btn-call" aria-label="Llamar ahora">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.6 17.6 0 0 0 4.168 6.608 17.6 17.6 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.68.68 0 0 0-.58-.122l-2.19.547a1.75 1.75 0 0 1-1.657-.459L5.482 8.062a1.75 1.75 0 0 1-.46-1.657l.548-2.19a.68.68 0 0 0-.122-.58zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.68.68 0 0 0 .178.643l2.457 2.457a.68.68 0 0 0 .644.178l2.189-.547a1.75 1.75 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.6 18.6 0 0 1-7.01-4.42 18.6 18.6 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877z"/></svg>
-                        Llamar ahora
-                    </a>
-                    <a href="https://wa.me/34614832668?text=Hola,%20me%20gustaría%20obtener%20un%20presupuesto%20para%20mi%20ordenador" class="btn btn-whatsapp" aria-label="Enviar mensaje por WhatsApp">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>
-                        WhatsApp
-                    </a>
-                </div>
+                <!-- Eliminamos los botones duplicados de llamada y WhatsApp en el héroe.
+                     Las vías rápidas de contacto ya se ofrecen en la cabecera y en la sección de contacto. -->
                 <!-- Formulario de contacto en el héroe -->
-                <div class="contact-box">
+                <div class="contact-box" id="hero-contact-form">
+                    <!-- Título para clarificar el propósito del formulario -->
+                    <h3 class="contact-title">Solicitar presupuesto o cita</h3>
                     <form action="https://formspree.io/f/mblqvozn" method="POST">
                         <div>
                             <label for="nombre">Nombre</label>
@@ -1554,11 +1580,13 @@
     <!-- Ventana del asistente IA -->
     <div class="assistant-window" id="assistant-window" aria-label="Asistente IA">
         <div class="assistant-header">
-            <span>¿Necesitas ayuda? Soy tu asistente IA</span>
+            <!-- Cabecera del chat: enfatizamos la marca para que el usuario identifique al técnico al instante -->
+            <span>¡Hola! Soy el Manitas Informático. ¿En qué puedo ayudarte?</span>
             <button class="assistant-close" id="assistant-close" aria-label="Cerrar asistente">×</button>
         </div>
         <div class="assistant-conversation" id="assistant-conversation">
-            <div class="message bot">Selecciona una opción:</div>
+            <!-- Mensaje de bienvenida inicial del asistente -->
+            <div class="message bot">Elige una opción rápida o escribe tu problema y te ayudo.</div>
         </div>
         <div class="assistant-options" id="assistant-options">
             <button class="assistant-option" data-message="Mi ordenador va lento">Ordenador lento</button>
@@ -1573,6 +1601,8 @@
             <input type="text" id="assistant-text" placeholder="Escribe tu consulta…" />
             <button type="button" id="assistant-send">Enviar</button>
         </div>
+        <!-- Contenedor para acciones dinámicas (llamada, WhatsApp, cita) que se generarán según la respuesta del asistente -->
+        <div class="assistant-actions" id="assistant-actions" aria-label="Acciones rápidas" style="display:none;"></div>
     </div>
     <!-- Botón flotante para subir al inicio -->
     <div class="scroll-top-btn" id="scroll-top-btn">↑</div>
@@ -1665,17 +1695,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	     * Ultra PRO: consulta al Worker de Cloudflare (sin exponer ninguna API key).
 	     * Devuelve la respuesta de la IA o null si falla (para usar fallback).
 	     */
-    const WORKER_CHAT_URL = 'https://manitas-ai.elmanitasinformatico-es.workers.dev/chat';
-    const ASSISTANT_STORAGE_KEY = 'manitas_assistant_history_v1';
-    let isBusy = false;
-    // Datos de contacto para CTA. Actualiza estos valores si cambian en el futuro.
-    const PHONE_LINK = 'tel:+34614832668';
-    const WHATSAPP_LINK = 'https://wa.me/34614832668?text=Hola,%20tengo%20una%20consulta';
-    // Iconos SVG en línea para WhatsApp y teléfono.  Los iconos se basan en
-    // Bootstrap Icons y se mantienen sin modificar conforme a las guías de uso de
-    // marcas【487893572187248†L39-L52】.
-    const WA_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>';
-    const PHONE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/><path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/></svg>';
+	    const WORKER_CHAT_URL = 'https://manitas-ai.elmanitasinformatico-es.workers.dev/chat';
+	    const ASSISTANT_STORAGE_KEY = 'manitas_assistant_history_v1';
+	    let isBusy = false;
 	
 	    function setBusy(state) {
 	        isBusy = state;
@@ -1730,49 +1752,35 @@ document.addEventListener('DOMContentLoaded', function () {
 	        }
 	    }
 	
-    async function askOpenAI(question) {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 14000);
-        try {
-            // Construir historial para enviar al Worker. Tomamos los
-            // mensajes visibles en el chat (sin los indicadores de escritura)
-            // y los convertimos a formato { role: 'user' | 'assistant', content: '...' }.
-            const history = [];
-            const nodes = assistantConversation.querySelectorAll('.message');
-            nodes.forEach(el => {
-                if (el.classList.contains('typing')) return;
-                const text = (el.textContent || '').trim();
-                if (!text) return;
-                if (el.classList.contains('user')) {
-                    history.push({ role: 'user', content: text });
-                } else {
-                    history.push({ role: 'assistant', content: text });
-                }
-            });
-            // Solo enviamos las últimas 10 entradas para limitar tamaño
-            let trimmedHistory = history.slice(-10);
-            // Evita duplicar el mensaje actual en la historia. Si el
-            // último elemento del historial es el mismo texto y rol de
-            // usuario que la pregunta enviada, lo eliminamos.
-            const lastItem = trimmedHistory[trimmedHistory.length - 1];
-            if (lastItem && lastItem.role === 'user' && lastItem.content === question) {
-                trimmedHistory = trimmedHistory.slice(0, -1);
-            }
+	    async function askOpenAI(question) {
+	        const controller = new AbortController();
+	        const timeout = setTimeout(() => controller.abort(), 14000);
+	        try {
+            // Construimos un historial breve de la conversación para enviar al Worker.
+            // Tomamos como máximo los últimos 10 mensajes (usuario y bot) excluyendo el mensaje que se está escribiendo.
+            const history = [...assistantConversation.querySelectorAll('.message')]
+                .filter(el => !el.classList.contains('typing'))
+                .map(el => ({
+                    role: el.classList.contains('user') ? 'user' : 'assistant',
+                    content: (el.textContent || '').trim()
+                }))
+                .slice(-10);
             const res = await fetch(WORKER_CHAT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: question, history: trimmedHistory }),
+                body: JSON.stringify({ message: question, history }),
                 signal: controller.signal
             });
-            if (!res.ok) return null;
+	            if (!res.ok) return null;
             const data = await res.json().catch(() => null);
-            return data;
-        } catch (e) {
-            return null;
-        } finally {
-            clearTimeout(timeout);
-        }
-    }
+            // Devolvemos el objeto completo (con reply, actions, meta) para que el front decida cómo actuar
+            return data || null;
+	        } catch (e) {
+	            return null;
+	        } finally {
+	            clearTimeout(timeout);
+	        }
+	    }
 
     /**
      * Procesa un mensaje del usuario y genera una respuesta.
@@ -1780,66 +1788,41 @@ document.addEventListener('DOMContentLoaded', function () {
      * @param {string} message
      */
 	    async function handleUserMessage(message) {
-        if (isBusy) return;
-        assistantOptions.style.display = 'none';
-        setBusy(true);
-        appendTyping();
+	        if (isBusy) return;
+	        assistantOptions.style.display = 'none';
+	        setBusy(true);
+	        appendTyping();
 
-        // 1) Llamar al Worker de IA para obtener respuesta y acciones (puede devolver null si falla)
-        let data = await askOpenAI(message);
-        let reply = null;
-        let actions = [];
-        if (data && typeof data === 'object') {
-            if (data.reply) reply = String(data.reply).trim();
-            if (Array.isArray(data.actions)) actions = data.actions;
+        // Oculta las acciones mientras se procesa la respuesta para evitar mostrar acciones antiguas
+        if (typeof showActions === 'function') {
+            showActions([]);
         }
-        // 2) Fallback local si no hay respuesta válida
-        if (!reply) {
-            reply = generateResponse(message) + '\n\nAhora mismo no puedo acceder a la IA.';
-            // En fallback siempre ofrecemos las dos vías de contacto
-            actions = [
-                { type: 'whatsapp', label: 'WhatsApp' },
-                { type: 'call', label: 'Llamar' }
-            ];
+	
+	        // Intento 1: IA real vía Worker
+        const data = await askOpenAI(message);
+        // Fallback: respuesta inteligente offline (si cae Internet/Worker)
+        let replyText = '';
+        let actionsList = [];
+        if (!data || typeof data !== 'object') {
+            // Genera respuesta de emergencia cuando no hay conexión con el worker
+            replyText = generateResponse(message) + '\n\nAhora mismo no puedo acceder a la IA. Escríbeme por WhatsApp o llámanos cuando quieras.';
+            actionsList = [{ type: 'whatsapp', label: 'WhatsApp' }, { type: 'call', label: 'Llamar' }];
+        } else {
+            replyText = data.reply || '';
+            actionsList = Array.isArray(data.actions) ? data.actions : [];
         }
         removeTyping();
         // Evita repetir exactamente la misma respuesta del bot para que la conversación sea más fluida
         const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
         const lastBotText = lastBotMsgEl ? lastBotMsgEl.textContent?.trim() : '';
-        if (lastBotText && lastBotText === reply.trim()) {
+        if (lastBotText && lastBotText === replyText.trim()) {
+            // Si la IA repite, sugerimos una pregunta abierta
             appendMessage('He respondido algo parecido. ¿Puedes concretar un poco más tu problema?', 'bot');
         } else {
-            appendMessage(reply, 'bot');
+            appendMessage(replyText, 'bot');
         }
-        // Eliminar CTA anterior para evitar duplicados
-        const previousCTA = assistantConversation.querySelector('.assistant-cta');
-        if (previousCTA) previousCTA.remove();
-        // Construir CTA según las acciones devueltas por el Worker
-        if (actions && actions.length > 0) {
-            const ctaContainer = document.createElement('div');
-            ctaContainer.className = 'assistant-cta';
-            ctaContainer.style.marginTop = '10px';
-            ctaContainer.style.display = 'flex';
-            ctaContainer.style.gap = '10px';
-            actions.forEach(action => {
-                const anchor = document.createElement('a');
-                anchor.classList.add('assistant-action', action.type);
-                anchor.style.fontSize = '0.75rem';
-                anchor.target = '_blank';
-                if (action.type === 'call') {
-                    anchor.href = PHONE_LINK;
-                    anchor.innerHTML = PHONE_SVG + '<span>' + (action.label || 'Llamar') + '</span>';
-                } else if (action.type === 'whatsapp') {
-                    anchor.href = WHATSAPP_LINK;
-                    anchor.innerHTML = WA_SVG + '<span>' + (action.label || 'WhatsApp') + '</span>';
-                } else {
-                    anchor.href = '#';
-                    anchor.textContent = action.label || 'Contacto';
-                }
-                ctaContainer.appendChild(anchor);
-            });
-            assistantConversation.appendChild(ctaContainer);
-        }
+        // Muestra las acciones pertinentes en el contenedor de acciones
+        showActions(actionsList);
         saveConversation();
         setBusy(false);
 	    }
@@ -1854,21 +1837,28 @@ document.addEventListener('DOMContentLoaded', function () {
 	    }
 
     if (assistantBtn && assistantWindow) {
-	        assistantBtn.addEventListener('click', () => {
-	            assistantWindow.classList.toggle('open');
-	            if (assistantWindow.classList.contains('open')) {
-	                // Restaurar historial si existe; si no, mensaje de bienvenida
-	                const restored = restoreConversation();
-	                if (!restored) {
-	                    assistantConversation.innerHTML = '';
-	                    appendMessage('¡Hola! Soy el asistente de El Manitas Informático. Cuéntame tu problema (PC lento, no arranca, WiFi, impresoras, virus...) y te digo el siguiente paso.', 'bot');
-	                }
-	                assistantOptions.style.display = 'none';
-	                assistantInput?.focus();
-	            }
-	        });
+            assistantBtn.addEventListener('click', () => {
+                assistantWindow.classList.toggle('open');
+                // Oculta el botón flotante cuando el chat está abierto y muéstralo de nuevo cuando se cierra.
+                if (assistantWindow.classList.contains('open')) {
+                    assistantBtn.style.display = 'none';
+                    // Restaurar historial si existe; si no, mensaje de bienvenida
+                    const restored = restoreConversation();
+                    if (!restored) {
+                        assistantConversation.innerHTML = '';
+                        appendMessage('¡Hola! Soy el asistente de El Manitas Informático. Cuéntame tu problema (PC lento, no arranca, WiFi, impresoras, virus...) y te digo el siguiente paso.', 'bot');
+                    }
+                    assistantOptions.style.display = 'none';
+                    assistantInput?.focus();
+                } else {
+                    // Al cerrar, mostramos el botón para que el usuario pueda volver a abrir el asistente
+                    assistantBtn.style.display = 'flex';
+                }
+            });
         assistantClose.addEventListener('click', () => {
             assistantWindow.classList.remove('open');
+            // Vuelve a mostrar el botón flotante cuando se cierra el chat
+            assistantBtn.style.display = 'flex';
         });
         assistantOptions.addEventListener('click', (e) => {
             if (e.target.classList.contains('assistant-option')) {
@@ -2003,6 +1993,104 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     document.querySelectorAll('.service-card, .pricing-item, .hero-card').forEach(card => applyTilt(card));
+
+    /*-------------------------------------------------------------
+     * Medición de conversiones (GA4)
+     *
+     * Para medir correctamente las conversiones en Google Analytics, definimos una
+     * función `track()` que delega en gtag() únicamente cuando está
+     * disponible. A continuación, registramos eventos en los botones de
+     * llamada y WhatsApp presentes en cualquier parte de la página. Estos
+     * eventos aparecerán en GA4 con los nombres `click_call` y
+     * `click_whatsapp`, respectivamente. El parámetro `method` indica
+     * el contexto donde se produjo el clic.
+     *-------------------------------------------------------------*/
+    function track(eventName, params) {
+        try {
+            if (typeof gtag === 'function') {
+                gtag('event', eventName, params || {});
+            }
+        } catch (e) {}
+    }
+    // Añade tracking a todos los enlaces telefónicos y de WhatsApp
+    document.querySelectorAll('a[href^="tel:"], a[href*="wa.me"]').forEach(a => {
+        a.addEventListener('click', () => {
+            const href = a.getAttribute('href') || '';
+            if (href.startsWith('tel:')) track('click_call', { method: 'page_cta' });
+            if (href.includes('wa.me')) track('click_whatsapp', { method: 'page_cta' });
+        });
+    });
+
+    // Referencia al contenedor de acciones dinámicas del chat
+    const assistantActionsContainer = document.getElementById('assistant-actions');
+
+    /**
+     * Genera los botones de acción (WhatsApp, llamada y cita) según lo devuelto por el Worker.
+     * Siempre añadimos la opción de pedir cita al final para que el usuario pueda reservar.
+     * @param {Array<{type:string,label:string}>} actionsList
+     */
+    function showActions(actionsList) {
+        if (!assistantActionsContainer) return;
+        // Limpia acciones previas
+        assistantActionsContainer.innerHTML = '';
+        // Si no hay acciones a mostrar, ocultamos el contenedor y salimos
+        if (!actionsList || !actionsList.length) {
+            assistantActionsContainer.style.display = 'none';
+            return;
+        }
+        // Helper para crear botones con iconos y seguimiento
+        function createAction(type, label) {
+            let href = '#';
+            if (type === 'whatsapp') {
+                // Enlace oficial de WhatsApp (se puede personalizar mensaje aquí)
+                href = 'https://wa.me/34614832668';
+            } else if (type === 'call') {
+                // Enlace telefónico
+                href = 'tel:+34614832668';
+            }
+            const a = document.createElement('a');
+            a.className = 'assistant-action ' + (type === 'whatsapp' ? 'wa' : type === 'call' ? 'call' : '');
+            a.href = href;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            // SVG Icons: se utilizan iconos de Bootstrap similares a los empleados en el resto del sitio
+            let svg = '';
+            if (type === 'whatsapp') {
+                svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>';
+            } else if (type === 'call') {
+                svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M11.883 1.113a1.49 1.49 0 0 0-2.109 0l-.755.755a1.49 1.49 0 0 0 0 2.108l.59.59c.324.324.405.809.238 1.222-.408 1.02-1.252 2.522-3.025 4.295-1.774 1.773-3.276 2.617-4.296 3.025a1.002 1.002 0 0 1-1.222-.238l-.59-.59a1.49 1.49 0 0 0-2.108 0l-.755.755a1.49 1.49 0 0 0 0 2.109l.931.93c1.28 1.281 3.342 1.4 4.822.28 1.426-1.082 3.437-2.562 5.91-5.036 2.474-2.474 3.954-4.485 5.036-5.911 1.12-1.48 1.001-3.543-.28-4.822l-.93-.931z"/></svg>';
+            }
+            a.innerHTML = svg + '<span>' + label + '</span>';
+            // Los clics en call y WhatsApp se rastrean mediante el manejador global de enlaces (ver más abajo).
+            return a;
+        }
+        // Insertar para cada acción devuelta por el worker
+        actionsList.forEach(action => {
+            if (action.type === 'whatsapp' || action.type === 'call') {
+                const btn = createAction(action.type, action.label || '');
+                assistantActionsContainer.appendChild(btn);
+            }
+        });
+        // Añadimos siempre la opción de pedir cita, que desplaza al formulario y registra conversión
+        const citaBtn = document.createElement('button');
+        citaBtn.type = 'button';
+        citaBtn.className = 'assistant-action cita';
+        // Icono de cita (agenda)
+        citaBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M11 0H5a1 1 0 0 0-1 1v1H3a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-1V1a1 1 0 0 0-1-1zM5 1h6v1H5V1zM2 4h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4z"/><path d="M8 5a.5.5 0 0 1 .5.5V7h1a.5.5 0 0 1 0 1H8.5v1a.5.5 0 0 1-1 0V8H6a.5.5 0 0 1 0-1h1.5V5.5A.5.5 0 0 1 8 5z"/></svg><span>Pedir cita</span>';
+        citaBtn.addEventListener('click', () => {
+            track('click_cita', { method: 'assistant_actions' });
+            const form = document.getElementById('hero-contact-form') || document.querySelector('#hero-contact-form');
+            if (form) {
+                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // También enfocamos el primer input para animar al usuario a rellenarlo
+                const firstInput = form.querySelector('input, textarea');
+                if (firstInput) firstInput.focus();
+            }
+        });
+        assistantActionsContainer.appendChild(citaBtn);
+        // Mostrar el contenedor
+        assistantActionsContainer.style.display = 'flex';
+    }
 });
 </script>
 </body>
