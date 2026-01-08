@@ -1701,8 +1701,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	
 	    function setBusy(state) {
 	        isBusy = state;
+	        // Importante UX: NO deshabilitamos el input, porque pierde el foco/cursor y el usuario
+	        // nota que "se sale" del cuadro. Solo bloqueamos el botón de enviar para evitar dobles envíos.
 	        if (assistantSend) assistantSend.disabled = state;
-	        if (assistantInput) assistantInput.disabled = state;
+	        if (assistantWindow) assistantWindow.setAttribute('aria-busy', state ? 'true' : 'false');
 	    }
 	
 	    function appendTyping() {
@@ -1793,38 +1795,69 @@ document.addEventListener('DOMContentLoaded', function () {
 	        setBusy(true);
 	        appendTyping();
 
-        // Oculta las acciones mientras se procesa la respuesta para evitar mostrar acciones antiguas
-        if (typeof showActions === 'function') {
-            showActions([]);
-        }
-	
-	        // Intento 1: IA real vía Worker
-        const data = await askOpenAI(message);
-        // Fallback: respuesta inteligente offline (si cae Internet/Worker)
-        let replyText = '';
-        let actionsList = [];
-        if (!data || typeof data !== 'object') {
-            // Genera respuesta de emergencia cuando no hay conexión con el worker
-            replyText = generateResponse(message) + '\n\nAhora mismo no puedo acceder a la IA. Escríbeme por WhatsApp o llámanos cuando quieras.';
-            actionsList = [{ type: 'whatsapp', label: 'WhatsApp' }, { type: 'call', label: 'Llamar' }];
-        } else {
-            replyText = data.reply || '';
-            actionsList = Array.isArray(data.actions) ? data.actions : [];
-        }
-        removeTyping();
-        // Evita repetir exactamente la misma respuesta del bot para que la conversación sea más fluida
-        const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
-        const lastBotText = lastBotMsgEl ? lastBotMsgEl.textContent?.trim() : '';
-        if (lastBotText && lastBotText === replyText.trim()) {
-            // Si la IA repite, sugerimos una pregunta abierta
-            appendMessage('He respondido algo parecido. ¿Puedes concretar un poco más tu problema?', 'bot');
-        } else {
-            appendMessage(replyText, 'bot');
-        }
-        // Muestra las acciones pertinentes en el contenedor de acciones
-        showActions(actionsList);
-        saveConversation();
-        setBusy(false);
+	        // Oculta las acciones mientras se procesa la respuesta para evitar mostrar acciones antiguas
+	        if (typeof showActions === 'function') {
+	            showActions([], null);
+	        }
+
+	        try {
+	            // Intento 1: IA real vía Worker
+	            const data = await askOpenAI(message);
+
+	            // Fallback: respuesta inteligente offline (si cae Internet/Worker)
+	            let replyText = '';
+	            /** @type {Array<{type:string,label?:string}>} */
+	            let actionsList = [];
+	            let meta = null;
+
+	            if (!data || typeof data !== 'object') {
+	                replyText =
+	                    generateResponse(message) +
+	                    '\n\nAhora mismo no puedo acceder a la IA. Escríbeme por WhatsApp o llámame cuando quieras.';
+	                actionsList = [
+	                    { type: 'whatsapp', label: 'WhatsApp' },
+	                    { type: 'call', label: 'Llamar' },
+	                ];
+	            } else {
+	                replyText = (data.reply || '').toString();
+	                actionsList = Array.isArray(data.actions) ? data.actions : [];
+	                meta = data.meta && typeof data.meta === 'object' ? data.meta : null;
+	            }
+
+	            removeTyping();
+
+	            // Evita repetir exactamente la misma respuesta del bot para que la conversación sea más fluida
+	            const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
+	            const lastBotText = lastBotMsgEl ? (lastBotMsgEl.textContent || '').trim() : '';
+	            if (lastBotText && lastBotText === replyText.trim()) {
+	                appendMessage('He respondido algo parecido. ¿Puedes concretar un poco más tu problema?', 'bot');
+	            } else {
+	                appendMessage(replyText, 'bot');
+	            }
+
+	            // Muestra las acciones pertinentes en el contenedor de acciones (incluye cita si procede)
+	            showActions(actionsList, meta);
+	            saveConversation();
+	        } catch (err) {
+	            // Si algo falla, nunca dejamos el asistente bloqueado: devolvemos un fallback seguro
+	            removeTyping();
+	            appendMessage('He tenido un fallo técnico puntual. Si quieres, dime qué te pasa en una frase o contacta por WhatsApp/llamada y lo resolvemos rápido.', 'bot');
+	            if (typeof showActions === 'function') {
+	                showActions(
+	                    [
+	                        { type: 'whatsapp', label: 'WhatsApp' },
+	                        { type: 'call', label: 'Llamar' },
+	                    ],
+	                    null
+	                );
+	            }
+	            saveConversation();
+	        } finally {
+	            setBusy(false);
+	            // UX: recupera foco SIEMPRE para que no “se salga” el cursor
+	            try { assistantInput && assistantInput.focus(); } catch (e) {}
+	            try { assistantConversation.scrollTop = assistantConversation.scrollHeight; } catch (e) {}
+	        }
 	    }
 
 	    function sendCustomMessage() {
@@ -1832,6 +1865,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	        if (!text || isBusy) return;
 	        appendMessage(text, 'user');
 	        assistantInput.value = '';
+	        // Mantén foco para escribir seguido sin tener que clicar otra vez
+	        try { assistantInput && assistantInput.focus(); } catch (e) {}
 	        saveConversation();
 	        handleUserMessage(text);
 	    }
@@ -1865,6 +1900,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const message = e.target.dataset.message;
                 appendMessage(message, 'user');
                 assistantOptions.style.display = 'none';
+                try { assistantInput && assistantInput.focus(); } catch (e) {}
                 handleUserMessage(message);
             }
         });
@@ -2112,72 +2148,89 @@ const assistantActionsContainer = document.getElementById('assistant-actions');
      * Siempre añadimos la opción de pedir cita al final para que el usuario pueda reservar.
      * @param {Array<{type:string,label:string}>} actionsList
      */
-    function showActions(actionsList) {
+    function showActions(actionsList, meta) {
         if (!assistantActionsContainer) return;
+
         // Limpia acciones previas
         assistantActionsContainer.innerHTML = '';
-        // Si no hay acciones a mostrar, ocultamos el contenedor y salimos
-        if (!actionsList || !actionsList.length) {
+
+        // Normaliza entrada
+        const list = Array.isArray(actionsList) ? actionsList.filter(Boolean) : [];
+
+        // Si no hay acciones, ocultamos el contenedor y salimos
+        if (!list.length) {
             assistantActionsContainer.style.display = 'none';
             return;
         }
+
         // Helper para crear botones con iconos y seguimiento
         function createAction(type, label) {
             let href = '#';
             if (type === 'whatsapp') {
-                // Enlace oficial de WhatsApp (se puede personalizar mensaje aquí)
                 href = 'https://wa.me/34614832668';
             } else if (type === 'call') {
-                // Enlace telefónico
                 href = 'tel:+34614832668';
             }
+
             const a = document.createElement('a');
             a.className = 'assistant-action ' + (type === 'whatsapp' ? 'wa' : type === 'call' ? 'call' : '');
             a.href = href;
+            a.setAttribute('data-ga-placement', 'assistant');
+            a.setAttribute('aria-label', label || (type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
+
             // Tel: en la misma pestaña (mejor UX). WhatsApp: nueva pestaña.
             if (type === 'call') {
-              a.target = '_self';
-              a.rel = '';
+                a.target = '_self';
+                a.rel = '';
             } else {
-              a.target = '_blank';
-              a.rel = 'noopener noreferrer';
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
             }
-            // SVG Icons: se utilizan iconos de Bootstrap similares a los empleados en el resto del sitio
+
+            // SVG Icons (Bootstrap-like)
             let svg = '';
             if (type === 'whatsapp') {
                 svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>';
             } else if (type === 'call') {
                 svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M11.883 1.113a1.49 1.49 0 0 0-2.109 0l-.755.755a1.49 1.49 0 0 0 0 2.108l.59.59c.324.324.405.809.238 1.222-.408 1.02-1.252 2.522-3.025 4.295-1.774 1.773-3.276 2.617-4.296 3.025a1.002 1.002 0 0 1-1.222-.238l-.59-.59a1.49 1.49 0 0 0-2.108 0l-.755.755a1.49 1.49 0 0 0 0 2.109l.931.93c1.28 1.281 3.342 1.4 4.822.28 1.426-1.082 3.437-2.562 5.91-5.036 2.474-2.474 3.954-4.485 5.036-5.911 1.12-1.48 1.001-3.543-.28-4.822l-.93-.931z"/></svg>';
             }
-            a.innerHTML = svg + '<span>' + label + '</span>';
-            // Los clics en call y WhatsApp se rastrean mediante el manejador global de enlaces (ver más abajo).
+            a.innerHTML = svg + '<span>' + (label || '') + '</span>';
+            // Los clics se rastrean mediante el manejador global de enlaces (GA4)
             return a;
         }
-        // Insertar para cada acción devuelta por el worker
-        actionsList.forEach(action => {
+
+        // Insertar botones (WhatsApp / Llamar) según lo devuelto por el Worker
+        list.forEach(action => {
             if (action.type === 'whatsapp' || action.type === 'call') {
-                const btn = createAction(action.type, action.label || '');
+                const btn = createAction(action.type, action.label || (action.type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
                 assistantActionsContainer.appendChild(btn);
             }
         });
-        // Añadimos siempre la opción de pedir cita, que desplaza al formulario y registra conversión
-      // Boton "Pedir cita" SOLO cuando el asistente lo considere (actions incluye appointment)
-      const hasAppointment = Array.isArray(actions) && actions.some(a => a && a.type === "appointment");
-      if (hasAppointment) {
-        const citaBtn = document.createElement('button');
-        citaBtn.className = 'assistant-action cita';
-        citaBtn.innerHTML = `
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
-          Pedir cita
-        `;
-        citaBtn.addEventListener('click', () => {
-          trackAssistantEvent('cita', { intent: meta?.intent || null });
-          document.querySelector('#hero-contact-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          // Cierra el asistente para que el usuario vea el formulario
-          assistantWindow.classList.remove('open');
-        });
-        assistantActionsContainer.appendChild(citaBtn);
-      }
+
+        // Botón "Pedir cita" SOLO cuando el asistente lo considere (actions incluye appointment)
+        const hasAppointment = list.some(a => a && a.type === 'appointment');
+        if (hasAppointment) {
+            const citaBtn = document.createElement('button');
+            citaBtn.type = 'button';
+            citaBtn.className = 'assistant-action cita';
+            citaBtn.setAttribute('data-ga-placement', 'assistant');
+            citaBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
+              Pedir cita
+            `;
+            citaBtn.addEventListener('click', () => {
+                try {
+                    if (typeof trackAssistantEvent === 'function') {
+                        trackAssistantEvent('cita', { intent: meta && meta.intent ? meta.intent : null, placement: 'assistant' });
+                    }
+                } catch (e) {}
+                document.querySelector('#hero-contact-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                assistantWindow && assistantWindow.classList.remove('open');
+                if (typeof assistantBtn !== 'undefined' && assistantBtn) assistantBtn.style.display = 'flex';
+            });
+            assistantActionsContainer.appendChild(citaBtn);
+        }
+
         // Mostrar el contenedor
         assistantActionsContainer.style.display = 'flex';
     }
