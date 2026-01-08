@@ -2154,16 +2154,14 @@ const assistantActionsContainer = document.getElementById('assistant-actions');
         // Limpia acciones previas
         assistantActionsContainer.innerHTML = '';
 
-        // Normaliza entrada
+        // Normaliza la entrada del backend (podría ser undefined)
         const list = Array.isArray(actionsList) ? actionsList.filter(Boolean) : [];
 
-        // Si no hay acciones, ocultamos el contenedor y salimos
-        if (!list.length) {
-            assistantActionsContainer.style.display = 'none';
-            return;
-        }
-
-        // Helper para crear botones con iconos y seguimiento
+        /**
+         * Helper: crea un enlace para llamadas o WhatsApp. Si no se
+         * especifica la URL en el objeto de acción, se usan los valores
+         * predeterminados. El label también se normaliza si falta.
+         */
         function createAction(type, label) {
             let href = '#';
             if (type === 'whatsapp') {
@@ -2171,14 +2169,12 @@ const assistantActionsContainer = document.getElementById('assistant-actions');
             } else if (type === 'call') {
                 href = 'tel:+34614832668';
             }
-
             const a = document.createElement('a');
             a.className = 'assistant-action ' + (type === 'whatsapp' ? 'wa' : type === 'call' ? 'call' : '');
             a.href = href;
             a.setAttribute('data-ga-placement', 'assistant');
             a.setAttribute('aria-label', label || (type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
-
-            // Tel: en la misma pestaña (mejor UX). WhatsApp: nueva pestaña.
+            // Teléfono: misma pestaña; WhatsApp: nueva pestaña por privacidad
             if (type === 'call') {
                 a.target = '_self';
                 a.rel = '';
@@ -2186,8 +2182,7 @@ const assistantActionsContainer = document.getElementById('assistant-actions');
                 a.target = '_blank';
                 a.rel = 'noopener noreferrer';
             }
-
-            // SVG Icons (Bootstrap-like)
+            // Iconos SVG simplificados
             let svg = '';
             if (type === 'whatsapp') {
                 svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>';
@@ -2195,43 +2190,64 @@ const assistantActionsContainer = document.getElementById('assistant-actions');
                 svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M11.883 1.113a1.49 1.49 0 0 0-2.109 0l-.755.755a1.49 1.49 0 0 0 0 2.108l.59.59c.324.324.405.809.238 1.222-.408 1.02-1.252 2.522-3.025 4.295-1.774 1.773-3.276 2.617-4.296 3.025a1.002 1.002 0 0 1-1.222-.238l-.59-.59a1.49 1.49 0 0 0-2.108 0l-.755.755a1.49 1.49 0 0 0 0 2.109l.931.93c1.28 1.281 3.342 1.4 4.822.28 1.426-1.082 3.437-2.562 5.91-5.036 2.474-2.474 3.954-4.485 5.036-5.911 1.12-1.48 1.001-3.543-.28-4.822l-.93-.931z"/></svg>';
             }
             a.innerHTML = svg + '<span>' + (label || '') + '</span>';
-            // Los clics se rastrean mediante el manejador global de enlaces (GA4)
             return a;
         }
 
-        // Insertar botones (WhatsApp / Llamar) según lo devuelto por el Worker
-        list.forEach(action => {
+        /**
+         * Construye la lista final de acciones a mostrar. Aunque el
+         * backend decida no mostrar botones, el asistente siempre debe
+         * ofrecer opciones de contacto para que el usuario pueda
+         * concertar una cita de forma manual. Además, se añade un
+         * botón específico "Pedir cita" que desplaza la página al
+         * formulario de contacto.
+         */
+        const finalActions = [];
+        // Detectamos si el backend ha solicitado mostrar WhatsApp y/o llamada
+        const hasWA = list.some(a => a && a.type === 'whatsapp');
+        const hasCall = list.some(a => a && a.type === 'call');
+        // Tomamos las etiquetas personalizadas si existen
+        const waLabel = hasWA ? (list.find(a => a.type === 'whatsapp').label || 'WhatsApp') : 'WhatsApp';
+        const callLabel = hasCall ? (list.find(a => a.type === 'call').label || 'Llamar') : 'Llamar';
+        // Siempre añadimos WhatsApp y llamada; evitamos duplicados
+        finalActions.push({ type: 'whatsapp', label: waLabel });
+        finalActions.push({ type: 'call', label: callLabel });
+        // Añade botón de cita al final
+        finalActions.push({ type: 'appointment', label: 'Pedir cita' });
+
+        // Generar los botones en orden
+        finalActions.forEach(action => {
             if (action.type === 'whatsapp' || action.type === 'call') {
-                const btn = createAction(action.type, action.label || (action.type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
+                const btn = createAction(action.type, action.label);
                 assistantActionsContainer.appendChild(btn);
+            } else if (action.type === 'appointment') {
+                // Usamos un enlace para que herede las mismas propiedades que el resto de acciones
+                const citaBtn = document.createElement('a');
+                citaBtn.href = '#';
+                citaBtn.className = 'assistant-action cita';
+                citaBtn.setAttribute('data-ga-placement', 'assistant');
+                // Icono y texto
+                citaBtn.innerHTML = `
+                  <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="currentColor">
+                    <path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/>
+                  </svg>
+                  <span>Pedir cita</span>
+                `;
+                citaBtn.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    try {
+                        if (typeof trackAssistantEvent === 'function') {
+                            trackAssistantEvent('cita', { intent: meta && meta.intent ? meta.intent : null, placement: 'assistant' });
+                        }
+                    } catch (e) {}
+                    // Lleva al formulario de contacto
+                    document.querySelector('#hero-contact-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    assistantWindow && assistantWindow.classList.remove('open');
+                    if (typeof assistantBtn !== 'undefined' && assistantBtn) assistantBtn.style.display = 'flex';
+                });
+                assistantActionsContainer.appendChild(citaBtn);
             }
         });
-
-        // Botón "Pedir cita" SOLO cuando el asistente lo considere (actions incluye appointment)
-        const hasAppointment = list.some(a => a && a.type === 'appointment');
-        if (hasAppointment) {
-            const citaBtn = document.createElement('button');
-            citaBtn.type = 'button';
-            citaBtn.className = 'assistant-action cita';
-            citaBtn.setAttribute('data-ga-placement', 'assistant');
-            citaBtn.innerHTML = `
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
-              Pedir cita
-            `;
-            citaBtn.addEventListener('click', () => {
-                try {
-                    if (typeof trackAssistantEvent === 'function') {
-                        trackAssistantEvent('cita', { intent: meta && meta.intent ? meta.intent : null, placement: 'assistant' });
-                    }
-                } catch (e) {}
-                document.querySelector('#hero-contact-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                assistantWindow && assistantWindow.classList.remove('open');
-                if (typeof assistantBtn !== 'undefined' && assistantBtn) assistantBtn.style.display = 'flex';
-            });
-            assistantActionsContainer.appendChild(citaBtn);
-        }
-
-        // Mostrar el contenedor
+        // Siempre mostramos el contenedor porque hay acciones
         assistantActionsContainer.style.display = 'flex';
     }
 });
