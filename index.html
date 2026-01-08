@@ -1680,13 +1680,21 @@ document.addEventListener('DOMContentLoaded', function () {
             'Ok, vamos a por ello.',
             'Perfecto, lo pillo.',
             'A ver, esto tiene pinta de…',
-            'Vamos al grano 😄'
+            'Vamos al grano 😄',
+            '¡Entendido! 😊',
+            '¡Vamos a ello!',
+            '¡De acuerdo, cuéntame más!',
+            '¡Claro! Vamos a revisar esto.'
         ];
 
         const ctas = [
-            'Si me dices marca/modelo + lo que hace exactamente, te digo el siguiente paso. Y si quieres ir directo: WhatsApp o llamada y lo miramos rápido.',
-            'Dime el modelo del equipo y el síntoma tal cual (sin resumir) y te lo encajo. Si te corre prisa: WhatsApp o llamada y lo cerramos en 1 minuto.',
-            'Pásame modelo + síntoma y te digo por dónde va. Si prefieres, WhatsApp/llamada y te lo reviso contigo.'
+            'Si me das modelo/marca y lo que hace exactamente, te digo el siguiente paso. Y si prefieres ir directo: WhatsApp o llamada y lo miramos rápido.',
+            'Cuéntame el modelo del equipo y el síntoma tal cual (sin resumir) y te lo encajo. Si te corre prisa: WhatsApp o llamada y lo cerramos en 1 minuto.',
+            'Pásame modelo + síntoma y te digo por dónde va. Si prefieres, WhatsApp/llamada y te lo reviso contigo.',
+            'Háblame un poco del equipo (marca, modelo) y del problema. También podemos verlo por WhatsApp o llamada 😊.',
+            'Si te viene mejor hablarlo, escríbeme por WhatsApp o llámame sin compromiso.',
+            '¿Prefieres que lo veamos directamente? WhatsApp o llamada y listo 😊.',
+            'Si lo prefieres, seguimos por WhatsApp o por teléfono y lo vemos en un momento.'
         ];
 
         // Micro-comprobaciones seguras (sin abrir el equipo)
@@ -1804,35 +1812,15 @@ document.addEventListener('DOMContentLoaded', function () {
 	        const controller = new AbortController();
 	        const timeout = setTimeout(() => controller.abort(), 20000);
 	        try {
-            // Construimos un historial breve para enviar al Worker.
-// Importante: recortamos “CTA repetitivas” del propio bot (WhatsApp/llamada) para evitar que la IA las copie en bucle.
-function normalizeForHistory(role, content) {
-    let c = (content || '').toString().replace(/\s+/g, ' ').trim();
-
-    // Limita tamaño para no hinchar el prompt
-    if (c.length > 450) c = c.slice(0, 450) + '…';
-
-    if (role === 'assistant') {
-        // Quita coletillas típicas de CTA que suelen repetirse
-        c = c
-          .replace(/\b(si\s+prefieres|si\s+quieres|si\s+te\s+corre\s+prisa)[^\.\!\?]{0,120}(whatsapp|llamada|llamar)[^\.\!\?]{0,120}[\.\!\?]?/gi, '')
-          .replace(/\b(whatsapp|llamada|llamar|botones\s+de\s+contacto)\b[^\.\!\?]{0,120}[\.\!\?]?/gi, '')
-          .replace(/\s{2,}/g, ' ')
-          .trim();
-        // Si se ha quedado demasiado vacío, deja algo útil
-        if (c.length < 2) c = 'Entendido.';
-    }
-    return c;
-}
-
-const history = [...assistantConversation.querySelectorAll('.message')]
-    .filter(el => !el.classList.contains('typing'))
-    .map(el => {
-        const role = el.classList.contains('user') ? 'user' : 'assistant';
-        const content = normalizeForHistory(role, (el.textContent || '').trim());
-        return { role, content };
-    })
-    .slice(-12);
+            // Construimos un historial breve de la conversación para enviar al Worker.
+            // Tomamos como máximo los últimos 10 mensajes (usuario y bot) excluyendo el mensaje que se está escribiendo.
+            const history = [...assistantConversation.querySelectorAll('.message')]
+                .filter(el => !el.classList.contains('typing'))
+                .map(el => ({
+                    role: el.classList.contains('user') ? 'user' : 'assistant',
+                    content: (el.textContent || '').trim()
+                }))
+                .slice(-10);
             const res = await fetch(WORKER_CHAT_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1869,8 +1857,8 @@ const history = [...assistantConversation.querySelectorAll('.message')]
      * @param {string} message
      */
 	    async function handleUserMessage(message) {
-        if (isBusy) return;
-        assistantOptions.style.display = 'none';
+	        if (isBusy) return;
+	        assistantOptions.style.display = 'none';
 	        setBusy(true);
 	        appendTyping();
 
@@ -1896,9 +1884,13 @@ const history = [...assistantConversation.querySelectorAll('.message')]
 	            let meta = null;
 
 	            if (!data || typeof data !== 'object') {
-                    replyText =
-                        generateResponse(message) +
-                        '\n\nAhora mismo estoy con un fallo de conexión 😅. Si me dices en una frase qué te pasa (ej: “no enciende”, “va lento”, “no hay WiFi”), te guío rápido. Y si lo prefieres, WhatsApp o llamada y lo vemos en directo.';
+                replyText =
+                    generateResponse(message) +
+                    '\n\n' + pick([
+                        'Ahora mismo estoy con un fallo de conexión 😅. Cuéntame en una frase qué te pasa (ej: “no enciende”, “va lento”, “no hay WiFi”) y te guío rápido. O si prefieres, hablamos por WhatsApp/llamada.',
+                        'Estoy sin acceso a la IA en este momento 🙈. Dame un poco más de detalle y te oriento, o si te urge, contáctame por WhatsApp o llamada.',
+                        'En este momento no puedo acceder a la IA 🔧. Puedes contarme el modelo y el síntoma exacto y te respondo en seguida, o también puedes contactar por WhatsApp o llamada.'
+                    ]);
 	                actionsList = [
 	                    { type: 'whatsapp', label: 'WhatsApp' },
 	                    { type: 'call', label: 'Llamar' },
@@ -1911,34 +1903,13 @@ const history = [...assistantConversation.querySelectorAll('.message')]
 
 	            removeTyping();
 
-	            // Evita repetición (exacta o muy parecida) para que la conversación no suene “enlatada”
-                const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
-                const lastBotText = lastBotMsgEl ? (lastBotMsgEl.textContent || '').trim() : '';
-
-                function normalizeText(s){
-                    return (s || '')
-                      .toLowerCase()
-                      .replace(/[^a-z0-9áéíóúüñ\s]/gi,' ')
-                      .replace(/\s+/g,' ')
-                      .trim();
-                }
-                function jaccard(a,b){
-                    const A=new Set(normalizeText(a).split(' ').filter(Boolean));
-                    const B=new Set(normalizeText(b).split(' ').filter(Boolean));
-                    if (!A.size || !B.size) return 0;
-                    let inter=0;
-                    for (const w of A) if (B.has(w)) inter++;
-                    return inter / (A.size + B.size - inter);
-                }
-
-                const sim = lastBotText ? jaccard(lastBotText, replyText) : 0;
-                if (lastBotText && (lastBotText === replyText.trim() || sim >= 0.86)) {
-                    const alt = pick([
-                        'Vale, me estoy repitiendo 😅. Para afinar: ¿qué marca/modelo es y qué pasa exactamente (mensaje de error, pitidos, luces, etc.)?',
-                        'Ok, aquí falta un dato clave para no dar vueltas: dime el modelo del equipo y el síntoma tal cual, y te digo el siguiente paso.',
-                        'Me falta una pieza del puzzle 🧩: modelo exacto + qué ocurre (y desde cuándo). Con eso te lo dejo claro.'
-                    ]);
-                    appendMessage(alt, 'bot');
+	            // Evita repetir exactamente la misma respuesta del bot para que la conversación sea más fluida
+	            const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
+	            const lastBotText = lastBotMsgEl ? (lastBotMsgEl.textContent || '').trim() : '';
+                if (lastBotText && lastBotText === replyText.trim()) {
+                    // Si el bot repite exactamente el mismo mensaje, evitamos un bucle frustrante.
+                    // Invitamos al usuario a dar más contexto o a usar los botones de contacto.
+                    appendMessage('¡Hmm! Para avanzar, cuéntame el modelo del equipo y el síntoma exacto; o si te viene mejor, usa WhatsApp/llamada y lo resolvemos rápido 😊', 'bot');
                 } else {
                     appendMessage(replyText, 'bot');
                 }
@@ -1971,22 +1942,18 @@ const history = [...assistantConversation.querySelectorAll('.message')]
 	    function sendCustomMessage() {
         const text = assistantInput.value.trim();
         if (!text || isBusy) return;
-        // Evita enviar dos veces seguidas la misma entrada: si el nuevo texto es idéntico al último mensaje del usuario
+        // Evita enviar dos veces seguidas la misma entrada
         try {
             const lastUserMsgEl = [...assistantConversation.querySelectorAll('.message.user')].pop();
             const lastText = lastUserMsgEl ? (lastUserMsgEl.textContent || '').trim().toLowerCase() : '';
             const now = text.toLowerCase();
             if (lastText && now && lastText === now) {
-                // Responde con un mensaje que anime a aportar más detalles en lugar de repetir
-                appendMessage('😄 Te leo. Para no quedarnos en el “hola infinito”: dime el modelo del equipo y qué le pasa (o qué necesitas).', 'bot');
+                appendMessage('😄 Te leo. Para avanzar, dime algún detalle del equipo (marca/modelo) y lo que le ocurre 😊', 'bot');
                 assistantInput.value = '';
-                // Mantén el foco para que el usuario continúe escribiendo
                 try { assistantInput && assistantInput.focus(); } catch (e) {}
                 return;
             }
-        } catch (e) {
-            // Silenciar errores de acceso al historial
-        }
+        } catch (e) {}
         appendMessage(text, 'user');
         assistantInput.value = '';
         // Mantén foco para escribir seguido sin tener que clicar otra vez
@@ -2271,93 +2238,97 @@ const history = [...assistantConversation.querySelectorAll('.message')]
 
 const assistantActionsContainer = document.getElementById('assistant-actions');
 
-/**
- * Genera los botones de acción según lo devuelto por el Worker.
- * Inserta botones de llamada, WhatsApp y/o “Pedir cita” si corresponden.
- * Si no hay acciones, oculta el contenedor.
- * @param {Array<{type:string,label?:string}>} actionsList
- * @param {object|null} meta Datos adicionales (por ejemplo, intent) para seguimiento
- */
-function showActions(actionsList, meta) {
-    if (!assistantActionsContainer) return;
-    assistantActionsContainer.innerHTML = '';
-    const list = Array.isArray(actionsList) ? actionsList.filter(Boolean) : [];
+    /**
+     * Genera los botones de acción (WhatsApp, llamada y cita) según lo devuelto por el Worker.
+     * Siempre añadimos la opción de pedir cita al final para que el usuario pueda reservar.
+     * @param {Array<{type:string,label:string}>} actionsList
+     */
+    function showActions(actionsList, meta) {
+        if (!assistantActionsContainer) return;
 
-    // Acciones de llamada y WhatsApp
-    list.forEach(action => {
-        if (!action || !action.type) return;
-        const type = action.type;
-        if (type === 'whatsapp' || type === 'call') {
-            const btn = createAction(type, action.label || (type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
-            assistantActionsContainer.appendChild(btn);
+        // Limpia acciones previas
+        assistantActionsContainer.innerHTML = '';
+
+        // Normaliza entrada
+        const list = Array.isArray(actionsList) ? actionsList.filter(Boolean) : [];
+
+        // Si no hay acciones, ocultamos el contenedor y salimos
+        if (!list.length) {
+            assistantActionsContainer.style.display = 'none';
+            return;
         }
-    });
 
-    // Acción de pedir cita
-    if (list.some(a => a && a.type === 'appointment')) {
-        const citaBtn = document.createElement('button');
-        citaBtn.type = 'button';
-        citaBtn.className = 'assistant-action cita';
-        citaBtn.setAttribute('data-ga-placement','assistant');
-        citaBtn.innerHTML = `
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
-          Pedir cita
-        `;
-        citaBtn.addEventListener('click', () => {
-            try {
-                if (typeof trackAssistantEvent === 'function') {
-                    trackAssistantEvent('cita', { intent: meta && meta.intent ? String(meta.intent).slice(0, 40) : undefined, placement: 'assistant' });
-                }
-            } catch (e) {}
-            const target = document.getElementById('hero-contact-form') || document.getElementById('contacto');
-            if (target && typeof target.scrollIntoView === 'function') {
-                target.scrollIntoView({ behavior:'smooth', block:'start' });
-            } else {
-                window.location.hash = '#hero-contact-form';
+        // Helper para crear botones con iconos y seguimiento
+        function createAction(type, label) {
+            let href = '#';
+            if (type === 'whatsapp') {
+                href = 'https://wa.me/34614832668';
+            } else if (type === 'call') {
+                href = 'tel:+34614832668';
             }
-            // Cerrar el chat y volver a mostrar el botón
-            if (typeof assistantWindow !== 'undefined' && assistantWindow) assistantWindow.classList.remove('open');
-            if (typeof assistantBtn !== 'undefined' && assistantBtn) assistantBtn.style.display = 'flex';
+
+            const a = document.createElement('a');
+            a.className = 'assistant-action ' + (type === 'whatsapp' ? 'wa' : type === 'call' ? 'call' : '');
+            a.href = href;
+            a.setAttribute('data-ga-placement', 'assistant');
+            a.setAttribute('aria-label', label || (type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
+
+            // Tel: en la misma pestaña (mejor UX). WhatsApp: nueva pestaña.
+            if (type === 'call') {
+                a.target = '_self';
+                a.rel = '';
+            } else {
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+            }
+
+            // SVG Icons (Bootstrap-like)
+            let svg = '';
+            if (type === 'whatsapp') {
+                svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>';
+            } else if (type === 'call') {
+                svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M11.883 1.113a1.49 1.49 0 0 0-2.109 0l-.755.755a1.49 1.49 0 0 0 0 2.108l.59.59c.324.324.405.809.238 1.222-.408 1.02-1.252 2.522-3.025 4.295-1.774 1.773-3.276 2.617-4.296 3.025a1.002 1.002 0 0 1-1.222-.238l-.59-.59a1.49 1.49 0 0 0-2.108 0l-.755.755a1.49 1.49 0 0 0 0 2.109l.931.93c1.28 1.281 3.342 1.4 4.822.28 1.426-1.082 3.437-2.562 5.91-5.036 2.474-2.474 3.954-4.485 5.036-5.911 1.12-1.48 1.001-3.543-.28-4.822l-.93-.931z"/></svg>';
+            }
+            a.innerHTML = svg + '<span>' + (label || '') + '</span>';
+            // Los clics se rastrean mediante el manejador global de enlaces (GA4)
+            return a;
+        }
+
+        // Insertar botones (WhatsApp / Llamar) según lo devuelto por el Worker
+        list.forEach(action => {
+            if (action.type === 'whatsapp' || action.type === 'call') {
+                const btn = createAction(action.type, action.label || (action.type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
+                assistantActionsContainer.appendChild(btn);
+            }
         });
-        assistantActionsContainer.appendChild(citaBtn);
-    }
 
-    assistantActionsContainer.style.display = assistantActionsContainer.children.length ? 'flex' : 'none';
-}
+        // Botón "Pedir cita" SOLO cuando el asistente lo considere (actions incluye appointment)
+        const hasAppointment = list.some(a => a && a.type === 'appointment');
+        if (hasAppointment) {
+            const citaBtn = document.createElement('button');
+            citaBtn.type = 'button';
+            citaBtn.className = 'assistant-action cita';
+            citaBtn.setAttribute('data-ga-placement', 'assistant');
+            citaBtn.innerHTML = `
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
+              Pedir cita
+            `;
+            citaBtn.addEventListener('click', () => {
+                try {
+                    if (typeof trackAssistantEvent === 'function') {
+                        trackAssistantEvent('cita', { intent: meta && meta.intent ? meta.intent : null, placement: 'assistant' });
+                    }
+                } catch (e) {}
+                document.querySelector('#hero-contact-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                assistantWindow && assistantWindow.classList.remove('open');
+                if (typeof assistantBtn !== 'undefined' && assistantBtn) assistantBtn.style.display = 'flex';
+            });
+            assistantActionsContainer.appendChild(citaBtn);
+        }
 
-/**
- * Crea un elemento de acción para llamar o mandar WhatsApp.
- * Devuelve un enlace que abre la acción correspondiente.
- * @param {string} type 'whatsapp' o 'call'
- * @param {string} label Texto descriptivo
- * @returns {HTMLAnchorElement}
- */
-function createAction(type, label) {
-    let href = '#';
-    if (type === 'whatsapp') href = 'https://wa.me/34614832668';
-    else if (type === 'call') href = 'tel:+34614832668';
-    const a = document.createElement('a');
-    a.className = 'assistant-action ' + (type === 'whatsapp' ? 'wa' : 'call');
-    a.href = href;
-    a.setAttribute('data-ga-placement','assistant');
-    a.setAttribute('aria-label', label);
-    if (type === 'call') {
-        a.target = '_self';
-        a.rel = '';
-    } else {
-        a.target = '_blank';
-        a.rel = 'noopener noreferrer';
+        // Mostrar el contenedor
+        assistantActionsContainer.style.display = 'flex';
     }
-    // Añadir icono SVG
-    let svg = '';
-    if (type === 'whatsapp') {
-        svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>';
-    } else {
-        svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M11.883 1.113a1.49 1.49 0 0 0-2.109 0l-.755.755a1.49 1.49 0 0 0 0 2.108l.59.59c.324.324.405.809.238 1.222-.408 1.02-1.252 2.522-3.025 4.295-1.774 1.773-3.276 2.617-4.296 3.025a1.002 1.002 0 0 1-1.222-.238l-.59-.59a1.49 1.49 0 0 0-2.108 0l-.755.755a1.49 1.49 0 0 0 0 2.109l.931.93c1.28 1.281 3.342 1.4 4.822.28 1.426-1.082 3.437-2.562 5.91-5.036 2.474-2.474 3.954-4.485 5.036-5.911 1.12-1.48 1.001-3.543-.28-4.822l-.93-.931z"/></svg>';
-    }
-    a.innerHTML = svg + '<span>' + label + '</span>';
-    return a;
-}
 });
 </script>
 </body>
