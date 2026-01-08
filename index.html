@@ -852,38 +852,33 @@
         }
 
         /* Acciones rápidas del asistente (botones de llamada, WhatsApp y cita) */
-        .assistant-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 8px 12px;
-            border-top: 1px solid var(--color-border);
-            background: var(--color-card);
-            /* Forzamos que las acciones se distribuyan en tres columnas iguales para que todas las opciones sean visibles
-               en una sola fila siempre que el espacio lo permita. Si el ancho es demasiado pequeño, se irán a la segunda
-               línea de manera ordenada. */
-        }
-        .assistant-action {
-            /* Asigna a cada acción un ancho flexible de un tercio menos el espacio de separación. Esto evita que el
-               tercer botón se esconda fuera de la vista cuando hay poco espacio horizontal. */
-            flex: 1 1 calc(33.333% - 12px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            text-decoration: none;
-            border-radius: var(--radius-lg);
-            padding: 8px 10px;
-            border: 1px solid var(--color-border);
-            background: var(--color-bg-soft);
-            color: var(--color-text);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transition: transform 0.15s ease, background 0.15s ease;
-        }
-        .assistant-action:hover {
+        .assistant-actions{
+  display:none;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+.assistant-action{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:14px;
+  line-height:1;
+  text-decoration:none;
+  border:0;
+  cursor:pointer;
+  user-select:none;
+  transition:transform .06s ease, filter .12s ease;
+  min-height:42px;
+  flex:1 1 0;
+}
+.assistant-action:hover {
             transform: translateY(-2px);
         }
         .assistant-action.wa {
