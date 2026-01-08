@@ -1240,7 +1240,7 @@
                 <div class="contact-box" id="hero-contact-form">
                     <!-- Título para clarificar el propósito del formulario -->
                     <h3 class="contact-title">Solicitar presupuesto o cita</h3>
-                    <form action="https://formspree.io/f/mblqvozn" method="POST">
+                    <form action="https://formspree.io/f/mblqvozn" method="POST" id="contact-form" data-ga-placement="contact_form">
                         <div>
                             <label for="nombre">Nombre</label>
                             <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
@@ -2005,24 +2005,107 @@ document.addEventListener('DOMContentLoaded', function () {
      * `click_whatsapp`, respectivamente. El parámetro `method` indica
      * el contexto donde se produjo el clic.
      *-------------------------------------------------------------*/
-    function track(eventName, params) {
-        try {
-            if (typeof gtag === 'function') {
-                gtag('event', eventName, params || {});
-            }
-        } catch (e) {}
-    }
-    // Añade tracking a todos los enlaces telefónicos y de WhatsApp
-    document.querySelectorAll('a[href^="tel:"], a[href*="wa.me"]').forEach(a => {
-        a.addEventListener('click', () => {
-            const href = a.getAttribute('href') || '';
-            if (href.startsWith('tel:')) track('click_call', { method: 'page_cta' });
-            if (href.includes('wa.me')) track('click_whatsapp', { method: 'page_cta' });
-        });
-    });
+    
+/* ================================================================
+   GA4 – eventos de conversión (WhatsApp / Llamar / Cita / Form submit)
+   - Nombres: click_whatsapp, click_call, click_cita, form_submit
+   - Parámetros limpios: method, placement, label, intent (si aplica)
+   ================================================================ */
+(function () {
+  window.dataLayer = window.dataLayer || [];
 
-    // Referencia al contenedor de acciones dinámicas del chat
-    const assistantActionsContainer = document.getElementById('assistant-actions');
+  function cleanParams(obj) {
+    const o = Object.assign({}, obj || {});
+    for (const k of Object.keys(o)) {
+      if (o[k] === null || o[k] === undefined || o[k] === "") delete o[k];
+    }
+    return o;
+  }
+
+  function getPlacement(el) {
+    if (!el) return "unknown";
+    const c = (sel) => (el.closest ? el.closest(sel) : null);
+    if (c("#assistant-widget") || c(".assistant-widget") || c(".assistant-window")) return "assistant";
+    if (c("header")) return "header";
+    if (c("#hero") || c(".hero")) return "hero";
+    if (c("#hero-contact-form") || c("#contact") || c("#contacto") || c("#formulario") || c("form")) return "contact";
+    if (c("footer")) return "footer";
+    return "page";
+  }
+
+  function track(name, params = {}) {
+    try {
+      const p = cleanParams(params);
+      if (typeof window.gtag === "function") {
+        window.gtag("event", name, p);
+      } else {
+        window.dataLayer.push(Object.assign({ event: name }, p));
+      }
+    } catch (e) {}
+  }
+
+  window.__manitasTrack = track;
+  window.__manitasPlacement = getPlacement;
+
+  window.trackAssistantEvent = function (type, extra = {}) {
+    const base = cleanParams(Object.assign({ placement: "assistant" }, extra || {}));
+
+    if (type === "whatsapp") return track("click_whatsapp", Object.assign({ method: "assistant" }, base));
+    if (type === "call") return track("click_call", Object.assign({ method: "assistant" }, base));
+    if (type === "cita") return track("click_cita", Object.assign({ method: "assistant" }, base));
+
+    // Compatibilidad con nombres antiguos
+    if (type === "assistant_action_whatsapp") return track("click_whatsapp", Object.assign({ method: "assistant" }, base));
+    if (type === "assistant_action_call") return track("click_call", Object.assign({ method: "assistant" }, base));
+    if (type === "cita_click") return track("click_cita", Object.assign({ method: "assistant" }, base));
+
+    return track("assistant_event", Object.assign({ action: type, method: "assistant" }, base));
+  };
+
+  // Track clicks globales en enlaces WhatsApp / tel:
+  document.querySelectorAll('a[href^="tel:"], a[href*="wa.me"], a[href*="api.whatsapp.com"]').forEach((a) => {
+    a.addEventListener("click", () => {
+      const href = a.getAttribute("href") || "";
+      const placement = (a.getAttribute("data-ga-placement") || getPlacement(a) || "page");
+      const label = (a.getAttribute("aria-label") || a.textContent || "").trim().slice(0, 40) || undefined;
+
+      if (href.startsWith("tel:")) {
+        track("click_call", { method: (placement === "assistant" ? "assistant" : "tel"), placement, label });
+      } else if (/wa\.me|api\.whatsapp\.com/i.test(href)) {
+        track("click_whatsapp", { method: (placement === "assistant" ? "assistant" : "whatsapp"), placement, label });
+      }
+    });
+  });
+
+  // Track “Pedir cita” (enlaces que llevan al formulario)
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    const href = (a.getAttribute("href") || "").toLowerCase();
+    if (["#hero-contact-form", "#contact", "#contacto", "#formulario", "#solicitar-cita"].includes(href)) {
+      a.addEventListener("click", () => {
+        const placement = (a.getAttribute("data-ga-placement") || getPlacement(a) || "page");
+        track("click_cita", { method: "scroll", placement });
+      });
+    }
+  });
+
+  // Track envío del formulario (sin PII)
+  const contactForm = document.querySelector("form#contact-form");
+  if (contactForm) {
+    contactForm.addEventListener(
+      "submit",
+      () => {
+        track("form_submit", {
+          form_id: contactForm.id || "contact-form",
+          method: "contact_form",
+          placement: "contact",
+        });
+      },
+      { capture: true }
+    );
+  }
+})();
+
+const assistantActionsContainer = document.getElementById('assistant-actions');
 
     /**
      * Genera los botones de acción (WhatsApp, llamada y cita) según lo devuelto por el Worker.
@@ -2051,8 +2134,14 @@ document.addEventListener('DOMContentLoaded', function () {
             const a = document.createElement('a');
             a.className = 'assistant-action ' + (type === 'whatsapp' ? 'wa' : type === 'call' ? 'call' : '');
             a.href = href;
-            a.target = '_blank';
-            a.rel = 'noopener';
+            // Tel: en la misma pestaña (mejor UX). WhatsApp: nueva pestaña.
+            if (type === 'call') {
+              a.target = '_self';
+              a.rel = '';
+            } else {
+              a.target = '_blank';
+              a.rel = 'noopener noreferrer';
+            }
             // SVG Icons: se utilizan iconos de Bootstrap similares a los empleados en el resto del sitio
             let svg = '';
             if (type === 'whatsapp') {
@@ -2072,22 +2161,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         // Añadimos siempre la opción de pedir cita, que desplaza al formulario y registra conversión
+      // Boton "Pedir cita" SOLO cuando el asistente lo considere (actions incluye appointment)
+      const hasAppointment = Array.isArray(actions) && actions.some(a => a && a.type === "appointment");
+      if (hasAppointment) {
         const citaBtn = document.createElement('button');
-        citaBtn.type = 'button';
         citaBtn.className = 'assistant-action cita';
-        // Icono de cita (agenda)
-        citaBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M11 0H5a1 1 0 0 0-1 1v1H3a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-1V1a1 1 0 0 0-1-1zM5 1h6v1H5V1zM2 4h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4z"/><path d="M8 5a.5.5 0 0 1 .5.5V7h1a.5.5 0 0 1 0 1H8.5v1a.5.5 0 0 1-1 0V8H6a.5.5 0 0 1 0-1h1.5V5.5A.5.5 0 0 1 8 5z"/></svg><span>Pedir cita</span>';
+        citaBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
+          Pedir cita
+        `;
         citaBtn.addEventListener('click', () => {
-            track('click_cita', { method: 'assistant_actions' });
-            const form = document.getElementById('hero-contact-form') || document.querySelector('#hero-contact-form');
-            if (form) {
-                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                // También enfocamos el primer input para animar al usuario a rellenarlo
-                const firstInput = form.querySelector('input, textarea');
-                if (firstInput) firstInput.focus();
-            }
+          trackAssistantEvent('cita', { intent: meta?.intent || null });
+          document.querySelector('#hero-contact-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Cierra el asistente para que el usuario vea el formulario
+          assistantWindow.classList.remove('open');
         });
         assistantActionsContainer.appendChild(citaBtn);
+      }
         // Mostrar el contenedor
         assistantActionsContainer.style.display = 'flex';
     }
