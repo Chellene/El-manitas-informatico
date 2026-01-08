@@ -1773,8 +1773,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify({ message: question, history }),
                 signal: controller.signal
             });
-	            if (!res.ok) return null;
-            const data = await res.json().catch(() => null);
+
+            // Intentamos leer SIEMPRE JSON (incluso con 4xx/5xx) para poder mostrar mensajes útiles.
+            const raw = await res.text().catch(() => '');
+            let data = null;
+            try { data = raw ? JSON.parse(raw) : null; } catch (e) { data = null; }
+
+            // Si el Worker devuelve un reply, lo tratamos como válido aunque el status no sea 2xx (p.ej. rate limit).
+            if ((!res.ok) && !(data && typeof data.reply === 'string' && data.reply.trim())) return null;
+
+            // Añadimos meta de estado por si hace falta para debug
+            if (data && typeof data === 'object') {
+                data.meta = data.meta && typeof data.meta === 'object' ? data.meta : {};
+                data.meta.http_status = res.status;
+            }
+
             // Devolvemos el objeto completo (con reply, actions, meta) para que el front decida cómo actuar
             return data || null;
 	        } catch (e) {
