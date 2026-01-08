@@ -1663,17 +1663,6 @@ document.addEventListener('DOMContentLoaded', function () {
         msg.textContent = content;
         assistantConversation.appendChild(msg);
         assistantConversation.scrollTop = assistantConversation.scrollHeight;
-
-        // UX: mantener el foco en el input cuando el asistente está abierto,
-        // para poder escribir seguido sin tener que clicar cada vez.
-        try {
-            if (assistantWindow && assistantWindow.classList.contains('open') && assistantInput && document.activeElement !== assistantInput) {
-                // Pequeño defer para no pelearse con el scroll/paint
-                setTimeout(() => {
-                    try { assistantInput.focus({ preventScroll: true }); } catch (e) {}
-                }, 0);
-            }
-        } catch (e) {}
     }
 
     /**
@@ -1840,11 +1829,13 @@ document.addEventListener('DOMContentLoaded', function () {
 	            // Evita repetir exactamente la misma respuesta del bot para que la conversación sea más fluida
 	            const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
 	            const lastBotText = lastBotMsgEl ? (lastBotMsgEl.textContent || '').trim() : '';
-	            if (lastBotText && lastBotText === replyText.trim()) {
-	                appendMessage('He respondido algo parecido. ¿Puedes concretar un poco más tu problema?', 'bot');
-	            } else {
-	                appendMessage(replyText, 'bot');
-	            }
+                if (lastBotText && lastBotText === replyText.trim()) {
+                    // Si el bot repite exactamente el mismo mensaje, evitamos un bucle frustrante.
+                    // Invitamos al usuario a dar más contexto o a usar los botones de contacto.
+                    appendMessage('¡Hmm! Para avanzar, cuéntame el modelo del equipo y el síntoma exacto; o si te viene mejor, usa WhatsApp/llamada y lo resolvemos rápido 😊', 'bot');
+                } else {
+                    appendMessage(replyText, 'bot');
+                }
 
 	            // Muestra las acciones pertinentes en el contenedor de acciones (incluye cita si procede)
 	            showActions(actionsList, meta);
@@ -1948,42 +1939,37 @@ document.addEventListener('DOMContentLoaded', function () {
      * Carga el script de Google Analytics solo cuando se han aceptado las cookies.
      */
     function loadAnalytics() {
-        // Evitar doble carga
-        if (window.__manitasGALoaded) return;
-        window.__manitasGALoaded = true;
-
         const script = document.createElement('script');
         script.async = true;
         script.src = 'https://www.googletagmanager.com/gtag/js?id=G-88HQGNRZE5';
         document.head.appendChild(script);
-
         window.dataLayer = window.dataLayer || [];
-        window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
-
-        window.gtag('js', new Date());
-        window.gtag('config', 'G-88HQGNRZE5', {
-            // Ajustes safe (sin PII)
-            anonymize_ip: true
-        });
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        // Asegura que gtag esté disponible de forma global para el resto del código.
+        window.gtag = gtag;
+        gtag('js', new Date());
+        gtag('config', 'G-88HQGNRZE5');
     }
     const consent = localStorage.getItem('cookie_consent');
     if (consent === 'accepted') {
         loadAnalytics();
     } else if (!consent) {
         // Mostrar el banner si no hay decisión
-        if (cookieBanner) cookieBanner.style.display = 'flex';
+        cookieBanner.style.display = 'flex';
     }
     if (cookieAccept) {
         cookieAccept.addEventListener('click', () => {
             localStorage.setItem('cookie_consent', 'accepted');
-            if (cookieBanner) cookieBanner.remove();
+            cookieBanner.remove();
             loadAnalytics();
         });
     }
     if (cookieDecline) {
         cookieDecline.addEventListener('click', () => {
             localStorage.setItem('cookie_consent', 'declined');
-            if (cookieBanner) cookieBanner.remove();
+            cookieBanner.remove();
         });
     }
 
@@ -2020,15 +2006,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     if (parallaxElems.length > 0) {
-        let __parallaxTicking = false;
-        window.addEventListener('scroll', () => {
-            if (__parallaxTicking) return;
-            __parallaxTicking = true;
-            requestAnimationFrame(() => {
-                __parallaxTicking = false;
-                parallaxScroll();
-            });
-        });
+        window.addEventListener('scroll', parallaxScroll);
         // Actualizar inmediatamente tras la carga para que la posición inicial sea coherente
         parallaxScroll();
     }
@@ -2173,10 +2151,8 @@ const assistantActionsContainer = document.getElementById('assistant-actions');
 
     /**
      * Genera los botones de acción (WhatsApp, llamada y cita) según lo devuelto por el Worker.
-     * Solo se muestra la opción «Pedir cita» cuando el Worker lo indica (actionsList contiene un elemento de tipo "appointment").
-     * Si no hay acciones, el contenedor permanece oculto. Las acciones previas se limpian en cada llamada.
-     * @param {Array<{type:string,label?:string}>} actionsList
-     * @param {object|null} meta
+     * Siempre añadimos la opción de pedir cita al final para que el usuario pueda reservar.
+     * @param {Array<{type:string,label:string}>} actionsList
      */
     function showActions(actionsList, meta) {
         if (!assistantActionsContainer) return;
@@ -2238,7 +2214,7 @@ const assistantActionsContainer = document.getElementById('assistant-actions');
         });
 
         // Botón "Pedir cita" SOLO cuando el asistente lo considere (actions incluye appointment)
-        const hasAppointment = list.some(a => a && (a.type === 'appointment' || a.type === 'cita'));
+        const hasAppointment = list.some(a => a && a.type === 'appointment');
         if (hasAppointment) {
             const citaBtn = document.createElement('button');
             citaBtn.type = 'button';
