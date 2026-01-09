@@ -2170,104 +2170,129 @@ const history = [...assistantConversation.querySelectorAll('.message')]
      * el contexto donde se produjo el clic.
      *-------------------------------------------------------------*/
     
-/* ================================================================
-   GA4 – eventos de conversión (WhatsApp / Llamar / Cita / Form submit)
-   - Nombres: click_whatsapp, click_call, click_cita, form_submit
-   - Parámetros limpios: method, placement, label, intent (si aplica)
-   ================================================================ */
-(function () {
-  window.dataLayer = window.dataLayer || [];
-
-  function cleanParams(obj) {
-    const o = Object.assign({}, obj || {});
-    for (const k of Object.keys(o)) {
-      if (o[k] === null || o[k] === undefined || o[k] === "") delete o[k];
+  /* =========================================================
+     GA4 – eventos de conversión (WhatsApp / Llamar / Cita / Form / Asistente)
+     - No rompe nada si gtag todavía no está cargado (cola + flush)
+     - Parámetros limpios y consistentes para informes
+  ========================================================= */
+  (function () {
+    // --- cola por si el usuario hace click ANTES de aceptar cookies ---
+    window.__ga4q = window.__ga4q || [];
+    function ga4Send(eventName, params) {
+      try {
+        if (typeof gtag === "function") {
+          gtag("event", eventName, params || {});
+        } else {
+          window.__ga4q.push([eventName, params || {}]);
+        }
+      } catch (_) {}
     }
-    return o;
-  }
 
-  function getPlacement(el) {
-    if (!el) return "unknown";
-    const c = (sel) => (el.closest ? el.closest(sel) : null);
-    if (c("#assistant-widget") || c(".assistant-widget") || c(".assistant-window")) return "assistant";
-    if (c("header")) return "header";
-    if (c("#hero") || c(".hero")) return "hero";
-    if (c("#hero-contact-form") || c("#contact") || c("#contacto") || c("#formulario") || c("form")) return "contact";
-    if (c("footer")) return "footer";
-    return "page";
-  }
+    // flush best-effort (máx ~5s)
+    (function flushQueue() {
+      var tries = 0;
+      var t = setInterval(function () {
+        tries++;
+        if (typeof gtag === "function" && window.__ga4q && window.__ga4q.length) {
+          try {
+            var q = window.__ga4q.slice(0);
+            window.__ga4q.length = 0;
+            q.forEach(function (it) { gtag("event", it[0], it[1] || {}); });
+          } catch (_) {}
+        }
+        if (tries >= 10) clearInterval(t);
+      }, 500);
+    })();
 
-  function track(name, params = {}) {
-    try {
-      const p = cleanParams(params);
-      if (typeof window.gtag === "function") {
-        window.gtag("event", name, p);
-      } else {
-        window.dataLayer.push(Object.assign({ event: name }, p));
-      }
-    } catch (e) {}
-  }
+    function on(el, ev, fn) {
+      if (!el) return;
+      el.addEventListener(ev, fn, { passive: true });
+    }
 
-  window.__manitasTrack = track;
-  window.__manitasPlacement = getPlacement;
+    function getPlacement(el) {
+      try {
+        if (el && el.dataset && el.dataset.placement) return el.dataset.placement;
+        var p = el && el.closest ? el.closest("[data-placement]") : null;
+        if (p && p.dataset && p.dataset.placement) return p.dataset.placement;
+        if (el && el.closest && el.closest("header")) return "header";
+        if (el && el.closest && el.closest("footer")) return "footer";
+        if (el && el.closest && el.closest("#assistant-widget")) return "assistant";
+      } catch (_) {}
+      return "page";
+    }    // --- Clicks: WhatsApp / Teléfono / Cita (anclas a contacto) ---
+    document.addEventListener("click", function (e) {
+      var a = e.target && e.target.closest ? e.target.closest("a") : null;
+      if (!a) return;
 
-  window.trackAssistantEvent = function (type, extra = {}) {
-    const base = cleanParams(Object.assign({ placement: "assistant" }, extra || {}));
+      var href = (a.getAttribute("href") || "").trim();
+      if (!href) return;
 
-    if (type === "whatsapp") return track("click_whatsapp", Object.assign({ method: "assistant" }, base));
-    if (type === "call") return track("click_call", Object.assign({ method: "assistant" }, base));
-    if (type === "cita") return track("click_cita", Object.assign({ method: "assistant" }, base));
+      var placement = getPlacement(a);
 
-    // Compatibilidad con nombres antiguos
-    if (type === "assistant_action_whatsapp") return track("click_whatsapp", Object.assign({ method: "assistant" }, base));
-    if (type === "assistant_action_call") return track("click_call", Object.assign({ method: "assistant" }, base));
-    if (type === "cita_click") return track("click_cita", Object.assign({ method: "assistant" }, base));
-
-    return track("assistant_event", Object.assign({ action: type, method: "assistant" }, base));
-  };
-
-  // Track clicks globales en enlaces WhatsApp / tel:
-  document.querySelectorAll('a[href^="tel:"], a[href*="wa.me"], a[href*="api.whatsapp.com"]').forEach((a) => {
-    a.addEventListener("click", () => {
-      const href = a.getAttribute("href") || "";
-      const placement = (a.getAttribute("data-ga-placement") || getPlacement(a) || "page");
-      const label = (a.getAttribute("aria-label") || a.textContent || "").trim().slice(0, 40) || undefined;
-
+      // Teléfono
       if (href.startsWith("tel:")) {
-        track("click_call", { method: (placement === "assistant" ? "assistant" : "tel"), placement, label });
-      } else if (/wa\.me|api\.whatsapp\.com/i.test(href)) {
-        track("click_whatsapp", { method: (placement === "assistant" ? "assistant" : "whatsapp"), placement, label });
-      }
-    });
-  });
-
-  // Track “Pedir cita” (enlaces que llevan al formulario)
-  document.querySelectorAll('a[href^="#"]').forEach((a) => {
-    const href = (a.getAttribute("href") || "").toLowerCase();
-    if (["#hero-contact-form", "#contact", "#contacto", "#formulario", "#solicitar-cita"].includes(href)) {
-      a.addEventListener("click", () => {
-        const placement = (a.getAttribute("data-ga-placement") || getPlacement(a) || "page");
-        track("click_cita", { method: "scroll", placement });
-      });
-    }
-  });
-
-  // Track envío del formulario (sin PII)
-  const contactForm = document.querySelector("form#contact-form");
-  if (contactForm) {
-    contactForm.addEventListener(
-      "submit",
-      () => {
-        track("form_submit", {
-          form_id: contactForm.id || "contact-form",
-          method: "contact_form",
-          placement: "contact",
+        ga4Send("click_call", {
+          method: "tel",
+          placement: placement,
+          href: href
         });
-      },
-      { capture: true }
-    );
-  }
-})();
+        return;
+      }
+
+      // WhatsApp
+      if (/wa\.me\/|api\.whatsapp\.com\/|whatsapp/i.test(href)) {
+        ga4Send("click_whatsapp", {
+          method: "whatsapp",
+          placement: placement,
+          href: href
+        });
+        return;
+      }
+
+      // “Pedir cita” => salto a #contacto o /#contacto
+      if (href === "#contacto" || /\/#contacto$/i.test(href)) {
+        ga4Send("click_appointment", {
+          method: "anchor",
+          placement: placement,
+          href: href
+        });
+        return;
+      }
+    }, { passive: true });
+
+    // --- Envío formulario (lead) ---
+    try {
+      var form = document.getElementById("contact-form");
+      if (form) {
+        form.addEventListener("submit", function () {
+          ga4Send("form_submit", {
+            form_id: "contact-form",
+            placement: "contact_section"
+          });
+        });
+      }
+    } catch (_) {}
+
+    // --- Asistente IA: puente para que el JS del asistente pueda disparar eventos ---
+    window.trackAssistantEvent = function (eventName, params) {
+      ga4Send(eventName, Object.assign({ placement: "assistant" }, params || {}));
+    };
+
+    // --- Acciones del asistente (botones dinámicos) ---
+    document.addEventListener("click", function (e) {
+      var btn = e.target && e.target.closest ? e.target.closest("[data-assistant-action]") : null;
+      if (!btn) return;
+
+      var type = btn.getAttribute("data-assistant-action") || "unknown";
+      ga4Send("assistant_action_click", {
+        action_type: type,
+        placement: "assistant",
+        label: (btn.textContent || "").trim().slice(0, 60)
+      });
+    }, { passive: true });
+
+  })();
+
 
 const assistantActionsContainer = document.getElementById('assistant-actions');
 
