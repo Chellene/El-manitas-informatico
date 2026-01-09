@@ -732,178 +732,169 @@
             text-decoration: underline;
         }
 
-        
-/* Elementos del asistente virtual */
-.assistant-btn{
-    position: fixed;
-    bottom: 100px;
-    right: 20px;
-    padding: 9px 16px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
-    color: #ffffff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
-    z-index: 1001;
-    font-size: 0.8rem;
-    font-weight: 600;
-    white-space: nowrap;
-    user-select: none;
-}
+        /* Elementos del asistente virtual */
+        .assistant-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            padding: 9px 16px;
+            border-radius: var(--radius-full);
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+            /* Cambiamos el color del texto a blanco para mayor contraste con el nuevo degradado azul */
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            /* Sombra actualizada al nuevo tono de acento */
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+            z-index: 1001;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .assistant-window {
+            position: fixed;
+            /* Reducimos la separación inferior para que el chat no desborde la parte superior de la pantalla.
+             * Con bottom: 80px y una altura máxima calculada en función del viewport, el asistente siempre es
+             * completamente visible incluso en portátiles o tablets de baja resolución. */
+            bottom: 80px;
+            right: 20px;
+            /* Aumentamos el ancho y lo limitamos al ancho de la pantalla menos los márgenes para evitar desbordes */
+            width: 340px;
+            max-width: calc(100vw - 40px);
+            /* La altura máxima se adapta a la altura del viewport para que el chat no se salga por arriba.
+             * Dejamos un margen total de 160px (80 arriba + 80 abajo) para cabecera, barra de tareas, etc. */
+            max-height: calc(100vh - 160px);
+            display: none;
+            flex-direction: column;
+            /* Colores adaptados al tema para garantizar legibilidad en modo claro y oscuro */
+            background: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        .assistant-window.open {
+            display: flex;
+        }
+        .assistant-header {
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
+            /* En modo claro la cabecera debe ser legible: usa texto oscuro si el fondo es claro */
+            color: #022c22;
+            padding: 10px 14px;
+            font-weight: 600;
+            border-top-left-radius: var(--radius-lg);
+            border-top-right-radius: var(--radius-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .assistant-close {
+            background: none;
+            border: none;
+            color: #022c22;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .assistant-conversation {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            /* Utiliza el mismo color de fondo que la tarjeta para que contraste en ambos modos */
+            background: var(--color-card);
+        }
+        .assistant-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 10px 12px;
+            justify-content: center;
+        }
+        .assistant-option {
+            background: var(--color-bg-soft);
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            border-radius: var(--radius-full);
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        .assistant-option:hover {
+            background: var(--color-bg);
+        }
+        .assistant-input {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            border-top: 1px solid var(--color-border);
+            background: var(--color-card);
+        }
+        .assistant-input input {
+            flex: 1;
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-full);
+            padding: 6px 12px;
+            background: var(--color-bg);
+            color: var(--color-text);
+        }
+        .assistant-input button {
+            background: var(--color-accent);
+            color: #022c22;
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 6px 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
 
-/* Widget */
-#assistant-widget.assistant-widget{
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    width: 360px;
-    max-width: calc(100vw - 40px);
-    max-height: calc(100vh - 160px);
-    display: none;
-    flex-direction: column;
-    background: var(--color-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.65);
-    z-index: 1000;
-    overflow: hidden;
+        /* Acciones rápidas del asistente (botones de llamada, WhatsApp y cita) */
+        .assistant-actions{
+  display:none;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:10px;
+  flex-wrap:wrap;
 }
+.assistant-action{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  font-weight:700;
+  font-size:14px;
+  line-height:1;
+  text-decoration:none;
+  border:0;
+  cursor:pointer;
+  user-select:none;
+  transition:transform .06s ease, filter .12s ease;
+  min-height:42px;
+  flex:1 1 0;
+}
+.assistant-action:hover {
+            transform: translateY(-2px);
+        }
+        .assistant-action.wa {
+            background: #25D366;
+            color: #ffffff;
+        }
+        .assistant-action.call {
+            background: #1E88E5;
+            color: #ffffff;
+        }
+        .assistant-action.cita {
+            background: var(--color-accent);
+            color: #022c22;
+        }
 
-#assistant-widget .assistant-header{
-    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-soft));
-    color: #ffffff;
-    padding: 10px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 10px;
-}
-#assistant-widget .assistant-title{
-    font-size: 0.92rem;
-    line-height: 1.25;
-}
-#assistant-widget .assistant-close{
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff;
-    width: 32px;
-    height: 32px;
-    border-radius: 999px;
-    cursor: pointer;
-    font-size: 1.2rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-}
-#assistant-widget .assistant-close:hover{ filter: brightness(1.05); }
-
-#assistant-widget .assistant-messages{
-    flex: 1;
-    overflow-y: auto;
-    padding: 12px;
-    background: var(--color-card);
-    font-size: 0.86rem;
-    line-height: 1.35;
-}
-
-#assistant-widget .assistant-msg{
-    display: flex;
-    margin: 0 0 10px;
-}
-#assistant-widget .assistant-msg.user{ justify-content: flex-end; }
-#assistant-widget .assistant-msg.assistant{ justify-content: flex-start; }
-
-#assistant-widget .assistant-bubble{
-    max-width: 86%;
-    padding: 10px 12px;
-    border-radius: 16px;
-    border: 1px solid var(--color-border);
-    background: var(--color-bg-soft);
-    color: var(--color-text);
-    word-wrap: break-word;
-    white-space: pre-wrap;
-}
-#assistant-widget .assistant-msg.user .assistant-bubble{
-    background: var(--color-call);
-    border-color: rgba(0,0,0,0.08);
-    color: #fff;
-}
-
-
-#assistant-widget .assistant-input-row{
-    display: flex;
-    gap: 8px;
-    padding: 10px 12px;
-    border-top: 1px solid var(--color-border);
-    background: var(--color-card);
-}
-#assistant-widget #assistant-input{
-    flex: 1;
-    border: 1px solid var(--color-border);
-    border-radius: 999px;
-    padding: 10px 12px;
-    background: var(--color-bg);
-    color: var(--color-text);
-    outline: none;
-}
-#assistant-widget #assistant-send{
-    background: var(--color-accent);
-    color: #ffffff;
-    border: none;
-    border-radius: 999px;
-    padding: 10px 14px;
-    cursor: pointer;
-    font-weight: 700;
-    min-width: 84px;
-    transition: transform .08s ease, filter .12s ease;
-}
-#assistant-widget #assistant-send:hover{ transform: translateY(-1px); filter: brightness(1.03); }
-#assistant-widget #assistant-send:disabled{ opacity: .6; cursor: not-allowed; }
-
-/* Acciones dinámicas */
-#assistant-widget .assistant-actions{
-    display:none;
-    gap: 10px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px 12px;
-    flex-wrap: wrap;
-    background: var(--color-card);
-}
-#assistant-widget .assistant-action-btn{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    padding: 12px 14px;
-    border-radius: 999px;
-    font-weight: 800;
-    font-size: 0.9rem;
-    border: 0;
-    cursor: pointer;
-    user-select: none;
-    flex: 1 1 0;
-    min-height: 44px;
-    transition: transform .08s ease, filter .12s ease;
-}
-#assistant-widget .assistant-action-btn:hover{ transform: translateY(-1px); filter: brightness(1.03); }
-
-#assistant-widget .assistant-action-btn.whatsapp{ background: #25D366; color:#ffffff; }
-#assistant-widget .assistant-action-btn.call{ background: var(--color-call); color:#ffffff; }
-#assistant-widget .assistant-action-btn.appointment{ background: var(--color-accent); color:#ffffff; }
-
-/* Resalta el formulario cuando vienes desde “Pedir cita” */
-.flash-focus{
-    outline:3px solid rgba(59,130,246,.65);
-    outline-offset:6px;
-    border-radius:14px;
-    transition: outline .2s ease;
-}
-
-/* Botón para volver al inicio */
+        /* Botón para volver al inicio */
         .scroll-top-btn {
             position: fixed;
             bottom: 20px;
@@ -1148,37 +1139,36 @@
             .hero {
                 gap: 1.2rem;
             }
-            
-/* Botón del asistente más pequeño y cerca del borde inferior */
-.assistant-btn{
-    bottom: 20px;
-    right: 10px;
-    font-size: 0.75rem;
-    padding: 8px 14px;
-}
-/* Widget del asistente adaptado a pantallas estrechas */
-#assistant-widget.assistant-widget{
-    bottom: 70px;
-    right: 10px;
-    width: 90vw;
-    max-height: 60vh;
-}
-#assistant-widget .assistant-header{
-    padding: 9px 10px;
-}
-#assistant-widget .assistant-messages{
-    padding: 10px;
-    font-size: 0.82rem;
-}
-#assistant-widget #assistant-input{
-    padding: 9px 10px;
-    font-size: 0.85rem;
-}
-#assistant-widget #assistant-send{
-    padding: 10px 12px;
-    font-size: 0.85rem;
-    min-width: 78px;
-}
+            /* Botón del asistente más pequeño y cerca del borde inferior */
+            .assistant-btn {
+                bottom: 20px;
+                right: 10px;
+                font-size: 0.75rem;
+                padding: 8px 14px;
+            }
+            /* Ventana del asistente adaptada a pantallas estrechas */
+            .assistant-window {
+                bottom: 70px;
+                right: 10px;
+                width: 90vw;
+                max-height: 60vh;
+            }
+            .assistant-header {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+            .assistant-conversation {
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+            .assistant-input input {
+                padding: 4px 10px;
+                font-size: 0.8rem;
+            }
+            .assistant-input button {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
@@ -1580,32 +1570,46 @@
             </ul>
         </nav>
     </footer>
-    
     <!-- Botón flotante para abrir el asistente IA -->
     <div class="assistant-btn" id="assistant-btn" title="Asistente IA">Asistente&nbsp;IA</div>
-
-    <!-- Asistente IA (nuevo widget) -->
-    <div id="assistant-widget" class="assistant-widget" aria-live="polite" style="display:none">
+    <!-- Ventana del asistente IA -->
+    <div class="assistant-window" id="assistant-window" aria-label="Asistente IA">
         <div class="assistant-header">
-            <div class="assistant-title">
-                <strong>¡Hola! Soy el Manitas Informático.</strong><br/>
-                <span>¿En qué puedo ayudarte?</span>
-            </div>
-            <button id="assistant-close" class="assistant-close" aria-label="Cerrar">×</button>
+            <!-- Cabecera del chat: enfatizamos la marca para que el usuario identifique al técnico al instante -->
+            <span>¡Hola! Soy el Manitas Informático. ¿En qué puedo ayudarte?</span>
+            <button class="assistant-close" id="assistant-close" aria-label="Cerrar asistente">×</button>
         </div>
-
-        <div id="assistant-messages" class="assistant-messages"></div>
-
-        <div class="assistant-input-row">
-            <input id="assistant-input" type="text" placeholder="Escribe tu consulta..." autocomplete="off" />
-            <button id="assistant-send" type="button">Enviar</button>
+        <div class="assistant-conversation" id="assistant-conversation">
+            <!-- Mensaje de bienvenida inicial del asistente -->
+            <div class="message bot">Elige una opción rápida o escribe tu problema y te ayudo.</div>
         </div>
-
-        <!-- Acciones dinámicas (se muestran solo si el Worker las manda) -->
-        <div id="assistant-actions" class="assistant-actions" style="display:none"></div>
+        <div class="assistant-options" id="assistant-options">
+            <button class="assistant-option" data-message="Mi ordenador va lento">Ordenador lento</button>
+            <button class="assistant-option" data-message="Quiero instalar un SSD">Instalar SSD</button>
+            <button class="assistant-option" data-message="Tengo problemas con el WiFi">Problemas de WiFi</button>
+            <button class="assistant-option" data-message="Necesito formatear Windows">Formatear</button>
+            <button class="assistant-option" data-message="Tengo un virus o publicidad">Virus / Malware</button>
+            <button class="assistant-option" data-message="Otra consulta">Otra consulta</button>
+        </div>
+        <!-- Entrada de texto para consultas personalizadas -->
+        <div class="assistant-input" id="assistant-input">
+            <input type="text" id="assistant-text" placeholder="Escribe tu consulta…" />
+            <button type="button" id="assistant-send">Enviar</button>
+        </div>
+        <!-- Contenedor para acciones dinámicas (llamada, WhatsApp, cita) que se generarán según la respuesta del asistente -->
+        <div class="assistant-actions" id="assistant-actions" aria-label="Acciones rápidas" style="display:none;"></div>
     </div>
-
-    <script>
+    <!-- Botón flotante para subir al inicio -->
+    <div class="scroll-top-btn" id="scroll-top-btn">↑</div>
+    <!-- Banner de cookies -->
+    <div class="cookie-banner" id="cookie-banner" style="display:none;">
+        <span>Utilizamos cookies propias y de terceros para analizar el tráfico y mejorar la experiencia. Puedes aceptarlas o rechazarlas.</span>
+        <button id="cookie-accept">Aceptar</button>
+        <button id="cookie-decline">Rechazar</button>
+        <a href="politica-cookies.html">Más información</a>
+    </div>
+</div>
+<script>
 // Ejecuta el código cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function () {
     // ----- Fecha en el footer -----
@@ -1634,211 +1638,406 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // ----- Asistente virtual -----
+    const assistantBtn = document.getElementById('assistant-btn');
+    const assistantWindow = document.getElementById('assistant-window');
+    const assistantClose = document.getElementById('assistant-close');
+    const assistantOptions = document.getElementById('assistant-options');
+    const assistantConversation = document.getElementById('assistant-conversation');
+    const assistantInput = document.getElementById('assistant-text');
+    const assistantSend = document.getElementById('assistant-send');
+
+    /**
+     * Añade un mensaje al área de conversación
+     * @param {string} content Contenido del mensaje
+     * @param {string} sender  'user' o 'bot' para aplicar estilos
+     */
+    function appendMessage(content, sender) {
+        const msg = document.createElement('div');
+        msg.classList.add('message', sender);
+        msg.textContent = content;
+        assistantConversation.appendChild(msg);
+        assistantConversation.scrollTop = assistantConversation.scrollHeight;
+    }
+
+    /**
+     * Genera una respuesta automática en función de palabras clave
+     * @param {string} msg
+     * @returns {string}
+     */
     
-// ----- Asistente virtual (nuevo widget) -----
-const WORKER_URL = "https://manitas-ai.elmanitasinformatico-es.workers.dev/chat";
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
 
-const assistantBtn = document.getElementById('assistant-btn');
-const assistantWidget = document.getElementById('assistant-widget');
-const assistantMessages = document.getElementById('assistant-messages');
-const assistantInput = document.getElementById('assistant-input');
-const assistantSend = document.getElementById('assistant-send');
-const assistantClose = document.getElementById('assistant-close');
-const assistantActions = document.getElementById('assistant-actions');
+    /**
+     * Respuesta offline (si cae Internet/Worker). Debe sonar humana, variar, y empujar a contacto.
+     * IMPORTANTE: No es un tutorial. Solo 1–2 comprobaciones seguras + CTA.
+     */
+    function generateResponse(msg) {
+        const lower = (msg || '').toLowerCase();
 
-let history = [];
-let isBusy = false;
+        const openers = [
+            'Vale, te entiendo.',
+            'Ok, vamos a por ello.',
+            'Perfecto, lo pillo.',
+            'A ver, esto tiene pinta de…',
+            'Vamos al grano 😄'
+        ];
 
-function appendMessage(role, text) {
-    if (!assistantMessages) return;
-    const msg = document.createElement('div');
-    msg.className = `assistant-msg ${role}`;
+        const ctas = [
+            'Si me dices marca/modelo + lo que hace exactamente, te digo el siguiente paso. Y si quieres ir directo: WhatsApp o llamada y lo miramos rápido.',
+            'Dime el modelo del equipo y el síntoma tal cual (sin resumir) y te lo encajo. Si te corre prisa: WhatsApp o llamada y lo cerramos en 1 minuto.',
+            'Pásame modelo + síntoma y te digo por dónde va. Si prefieres, WhatsApp/llamada y te lo reviso contigo.'
+        ];
 
-    const bubble = document.createElement('div');
-    bubble.className = 'assistant-bubble';
-    bubble.textContent = text;
+        // Micro-comprobaciones seguras (sin abrir el equipo)
+        const safeChecks = {
+            lento: [
+                '1) Reinicia y mira si el disco se pone al 100% en el Administrador de tareas.',
+                '2) Si es HDD, un SSD suele ser el “cambio de vida” (sin perder datos si se clona).'
+            ],
+            ssd: [
+                '1) Confirmar si tu equipo lleva M.2 NVMe o SATA (te lo digo con el modelo).',
+                '2) Si quieres conservar todo, lo ideal es clonar y luego ajustar arranque.'
+            ],
+            wifi: [
+                '1) Prueba a acercarte al router y ver si mejora (descarta cobertura).',
+                '2) Si solo falla en una habitación, suele ser señal/ruido: se soluciona con buen repetidor o mesh.'
+            ],
+            windows: [
+                '1) Si es por errores/virus, antes de formatear conviene salvar datos y revisar el disco.',
+                '2) Si decides reinstalar, mejor con drivers correctos para que quede fino.'
+            ],
+            virus: [
+                '1) No metas contraseñas hasta limpiar el equipo.',
+                '2) Si salen ventanas raras, suele ser adware: se quita, pero hay que hacerlo bien para que no vuelva.'
+            ],
+            general: [
+                '1) Cuéntame si es sobremesa o portátil y qué Windows tiene (10/11).',
+                '2) Si da pitidos/luces o un error en pantalla, dime el texto exacto.'
+            ]
+        };
 
-    msg.appendChild(bubble);
-    assistantMessages.appendChild(msg);
-    assistantMessages.scrollTop = assistantMessages.scrollHeight;
-}
+        let body = '';
 
-function hideActions() {
-    if (!assistantActions) return;
-    assistantActions.style.display = 'none';
-    assistantActions.innerHTML = '';
-}
-
-function showActions(actionsList, meta) {
-    hideActions();
-
-    if (!assistantActions) return;
-    if (!Array.isArray(actionsList) || actionsList.length === 0) return;
-
-    const createAction = (type, label) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = `assistant-action-btn ${type}`;
-        btn.textContent = label;
-
-        btn.addEventListener('click', () => {
-            // GA4
-            try {
-                if (typeof gtag === 'function') {
-                    gtag('event', 'assistant_action_click', {
-                        action_type: type,
-                        placement: 'assistant_widget',
-                        intent: meta?.intent || meta?.category || 'unknown'
-                    });
-                } else if (typeof window.trackAssistantEvent === 'function') {
-                    window.trackAssistantEvent('assistant_action_click', {
-                        action_type: type,
-                        placement: 'assistant_widget',
-                        intent: meta?.intent || meta?.category || 'unknown'
-                    });
-                }
-            } catch (e) {}
-
-            if (type === 'appointment') {
-                const formBlock = document.querySelector('#hero-contact-form, #contact-form, #contact, #contacto, #formulario, form[action*="formspree"]');
-                if (formBlock) {
-                    formBlock.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    try {
-                        formBlock.classList.add('flash-focus');
-                        setTimeout(() => formBlock.classList.remove('flash-focus'), 900);
-                    } catch (e) {}
-                    try {
-                        const first = formBlock.querySelector('input, textarea, select');
-                        first && first.focus && first.focus();
-                    } catch (e) {}
-                }
-                return;
-            }
-
-            if (type === 'whatsapp') {
-                window.open('https://wa.me/34614832668', '_blank', 'noopener');
-                return;
-            }
-
-            if (type === 'call') {
-                window.open('tel:+34614832668', '_self');
-                return;
-            }
-        });
-
-        return btn;
-    };
-
-    actionsList.forEach(a => {
-        const type = a?.type || 'unknown';
-        const label =
-            a?.label ||
-            (type === 'whatsapp' ? 'WhatsApp' :
-             type === 'call' ? 'Llamar' :
-             type === 'appointment' ? 'Formulario' :
-             'Acción');
-
-        assistantActions.appendChild(createAction(type, label));
-    });
-
-    if (assistantActions.children.length > 0) {
-        assistantActions.style.display = 'flex';
-    }
-}
-
-async function handleUserMessage(messageOverride) {
-    const message = (messageOverride ?? assistantInput?.value ?? '').trim();
-    if (!message || isBusy) return;
-
-    hideActions();
-
-    appendMessage('user', message);
-    history.push({ role: 'user', content: message });
-
-    if (assistantInput) assistantInput.value = "";
-    isBusy = true;
-    if (assistantSend) assistantSend.disabled = true;
-
-    try {
-        const response = await fetch(WORKER_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message,
-                history: history.slice(-10),
-                debug: false
-            })
-        });
-
-        if (!response.ok) {
-            // Si el Worker responde con error (4xx/5xx), lo tratamos como fallo de conexión
-            throw new Error(`Worker HTTP ${response.status}`);
+        if (lower.includes('lento')) {
+            body = safeChecks.lento.join('\n');
+        } else if (lower.includes('ssd') || lower.includes('disco') || lower.includes('nvme') || lower.includes('m.2')) {
+            body = safeChecks.ssd.join('\n');
+        } else if (lower.includes('wifi') || lower.includes('wi-fi') || lower.includes('wi fi') || lower.includes('internet') || lower.includes('corte')) {
+            body = safeChecks.wifi.join('\n');
+        } else if (lower.includes('formate') || lower.includes('windows') || lower.includes('window') || lower.includes('pantallazo')) {
+            body = safeChecks.windows.join('\n');
+        } else if (lower.includes('virus') || lower.includes('malware') || lower.includes('publicidad') || lower.includes('anuncios')) {
+            body = safeChecks.virus.join('\n');
+        } else {
+            body = safeChecks.general.join('\n');
         }
 
-        let data = null;
+        return `${pick(openers)}\n${body}\n\n${pick(ctas)}`;
+    }
+
+    /**
+
+	     * Ultra PRO: consulta al Worker de Cloudflare (sin exponer ninguna API key).
+	     * Devuelve la respuesta de la IA o null si falla (para usar fallback).
+	     */
+	    const WORKER_CHAT_URL = 'https://manitas-ai.elmanitasinformatico-es.workers.dev/chat';
+	    const ASSISTANT_STORAGE_KEY = 'manitas_assistant_history_v1';
+	    let isBusy = false;
+	
+	    function setBusy(state) {
+	        isBusy = state;
+	        // Importante UX: NO deshabilitamos el input, porque pierde el foco/cursor y el usuario
+	        // nota que "se sale" del cuadro. Solo bloqueamos el botón de enviar para evitar dobles envíos.
+	        if (assistantSend) assistantSend.disabled = state;
+	        if (assistantWindow) assistantWindow.setAttribute('aria-busy', state ? 'true' : 'false');
+	    }
+	
+	    function appendTyping() {
+	        // Evita duplicados
+	        const existing = assistantConversation.querySelector('.message.typing');
+	        if (existing) return existing;
+	        const msg = document.createElement('div');
+	        msg.classList.add('message', 'bot', 'typing');
+	        msg.textContent = 'Escribiendo…';
+	        assistantConversation.appendChild(msg);
+	        assistantConversation.scrollTop = assistantConversation.scrollHeight;
+	        return msg;
+	    }
+	
+	    function removeTyping() {
+	        const existing = assistantConversation.querySelector('.message.typing');
+	        if (existing) existing.remove();
+	    }
+	
+	    function saveConversation() {
+	        try {
+	            // Guardamos solo texto + rol para ser ligeros
+	            const items = [...assistantConversation.querySelectorAll('.message')]
+	                .filter(el => !el.classList.contains('typing'))
+	                .map(el => ({
+	                    sender: el.classList.contains('user') ? 'user' : 'bot',
+	                    text: el.textContent || ''
+	                }))
+	                .slice(-30); // límite para no hinchar storage
+	            localStorage.setItem(ASSISTANT_STORAGE_KEY, JSON.stringify(items));
+	        } catch (e) {}
+	    }
+	
+	    function restoreConversation() {
+	        try {
+	            const raw = localStorage.getItem(ASSISTANT_STORAGE_KEY);
+	            if (!raw) return false;
+	            const items = JSON.parse(raw);
+	            if (!Array.isArray(items) || items.length === 0) return false;
+	            assistantConversation.innerHTML = '';
+	            for (const it of items) {
+	                appendMessage(it.text, it.sender === 'user' ? 'user' : 'bot');
+	            }
+	            return true;
+	        } catch (e) {
+	            return false;
+	        }
+	    }
+	
+	    async function askOpenAI(question) {
+	        const controller = new AbortController();
+	        const timeout = setTimeout(() => controller.abort(), 20000);
+	        try {
+            // Construimos un historial breve para enviar al Worker.
+// Importante: recortamos “CTA repetitivas” del propio bot (WhatsApp/llamada) para evitar que la IA las copie en bucle.
+function normalizeForHistory(role, content) {
+    let c = (content || '').toString().replace(/\s+/g, ' ').trim();
+
+    // Limita tamaño para no hinchar el prompt
+    if (c.length > 450) c = c.slice(0, 450) + '…';
+
+    if (role === 'assistant') {
+        // Quita coletillas típicas de CTA que suelen repetirse
+        c = c
+          .replace(/\b(si\s+prefieres|si\s+quieres|si\s+te\s+corre\s+prisa)[^\.\!\?]{0,120}(whatsapp|llamada|llamar)[^\.\!\?]{0,120}[\.\!\?]?/gi, '')
+          .replace(/\b(whatsapp|llamada|llamar|botones\s+de\s+contacto)\b[^\.\!\?]{0,120}[\.\!\?]?/gi, '')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+        // Si se ha quedado demasiado vacío, deja algo útil
+        if (c.length < 2) c = 'Entendido.';
+    }
+    return c;
+}
+
+const history = [...assistantConversation.querySelectorAll('.message')]
+    .filter(el => !el.classList.contains('typing'))
+    .map(el => {
+        const role = el.classList.contains('user') ? 'user' : 'assistant';
+        const content = normalizeForHistory(role, (el.textContent || '').trim());
+        return { role, content };
+    })
+    .slice(-12);
+            const res = await fetch(WORKER_CHAT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: question, history }),
+                signal: controller.signal
+            });
+
+            // Intentamos leer SIEMPRE JSON (incluso con 4xx/5xx) para poder mostrar mensajes útiles.
+            const raw = await res.text().catch(() => '');
+            let data = null;
+            try { data = raw ? JSON.parse(raw) : null; } catch (e) { data = null; }
+
+            // Si el Worker devuelve un reply, lo tratamos como válido aunque el status no sea 2xx (p.ej. rate limit).
+            if ((!res.ok) && !(data && typeof data.reply === 'string' && data.reply.trim())) return null;
+
+            // Añadimos meta de estado por si hace falta para debug
+            if (data && typeof data === 'object') {
+                data.meta = data.meta && typeof data.meta === 'object' ? data.meta : {};
+                data.meta.http_status = res.status;
+            }
+
+            // Devolvemos el objeto completo (con reply, actions, meta) para que el front decida cómo actuar
+            return data || null;
+	        } catch (e) {
+	            return null;
+	        } finally {
+	            clearTimeout(timeout);
+	        }
+	    }
+
+    /**
+     * Procesa un mensaje del usuario y genera una respuesta.
+     * Además inserta botones de CTA para contacto.
+     * @param {string} message
+     */
+	    async function handleUserMessage(message) {
+        if (isBusy) return;
+        assistantOptions.style.display = 'none';
+	        setBusy(true);
+	        appendTyping();
+
+	        // Oculta las acciones mientras se procesa la respuesta para evitar mostrar acciones antiguas
+	        if (typeof showActions === 'function') {
+	            showActions([], null);
+	        }
+
+	        try {
+	            // Intento 1: IA real vía Worker
+	            let data = await askOpenAI(message);
+
+	            // Reintento 1 (muy corto) por si fue un microcorte / timeout puntual
+	            if (!data) {
+	                await new Promise(r => setTimeout(r, 250));
+	                data = await askOpenAI(message);
+	            }
+
+	            // Fallback: respuesta inteligente offline (si cae Internet/Worker)
+	            let replyText = '';
+	            /** @type {Array<{type:string,label?:string}>} */
+	            let actionsList = [];
+	            let meta = null;
+
+	            if (!data || typeof data !== 'object') {
+                    replyText =
+                        generateResponse(message) +
+                        '\n\nAhora mismo estoy con un fallo de conexión 😅. Si me dices en una frase qué te pasa (ej: “no enciende”, “va lento”, “no hay WiFi”), te guío rápido. Y si lo prefieres, WhatsApp o llamada y lo vemos en directo.';
+	                actionsList = [
+	                    { type: 'whatsapp', label: 'WhatsApp' },
+	                    { type: 'call', label: 'Llamar' },
+	                ];
+	            } else {
+	                replyText = (data.reply || '').toString();
+	                actionsList = Array.isArray(data.actions) ? data.actions : [];
+	                meta = data.meta && typeof data.meta === 'object' ? data.meta : null;
+	            }
+
+	            removeTyping();
+
+	            // Evita repetición (exacta o muy parecida) para que la conversación no suene “enlatada”
+                const lastBotMsgEl = [...assistantConversation.querySelectorAll('.message.bot')].pop();
+                const lastBotText = lastBotMsgEl ? (lastBotMsgEl.textContent || '').trim() : '';
+
+                function normalizeText(s){
+                    return (s || '')
+                      .toLowerCase()
+                      .replace(/[^a-z0-9áéíóúüñ\s]/gi,' ')
+                      .replace(/\s+/g,' ')
+                      .trim();
+                }
+                function jaccard(a,b){
+                    const A=new Set(normalizeText(a).split(' ').filter(Boolean));
+                    const B=new Set(normalizeText(b).split(' ').filter(Boolean));
+                    if (!A.size || !B.size) return 0;
+                    let inter=0;
+                    for (const w of A) if (B.has(w)) inter++;
+                    return inter / (A.size + B.size - inter);
+                }
+
+                const sim = lastBotText ? jaccard(lastBotText, replyText) : 0;
+                if (lastBotText && (lastBotText === replyText.trim() || sim >= 0.86)) {
+                    const alt = pick([
+                        'Vale, me estoy repitiendo 😅. Para afinar: ¿qué marca/modelo es y qué pasa exactamente (mensaje de error, pitidos, luces, etc.)?',
+                        'Ok, aquí falta un dato clave para no dar vueltas: dime el modelo del equipo y el síntoma tal cual, y te digo el siguiente paso.',
+                        'Me falta una pieza del puzzle 🧩: modelo exacto + qué ocurre (y desde cuándo). Con eso te lo dejo claro.'
+                    ]);
+                    appendMessage(alt, 'bot');
+                } else {
+                    appendMessage(replyText, 'bot');
+                }
+
+	            // Muestra las acciones pertinentes en el contenedor de acciones (incluye cita si procede)
+	            showActions(actionsList, meta);
+	            saveConversation();
+	        } catch (err) {
+	            // Si algo falla, nunca dejamos el asistente bloqueado: devolvemos un fallback seguro
+	            removeTyping();
+	            appendMessage('He tenido un fallo técnico puntual. Si quieres, dime qué te pasa en una frase o contacta por WhatsApp/llamada y lo resolvemos rápido.', 'bot');
+	            if (typeof showActions === 'function') {
+	                showActions(
+	                    [
+	                        { type: 'whatsapp', label: 'WhatsApp' },
+	                        { type: 'call', label: 'Llamar' },
+	                    ],
+	                    null
+	                );
+	            }
+	            saveConversation();
+	        } finally {
+	            setBusy(false);
+	            // UX: recupera foco SIEMPRE para que no “se salga” el cursor
+	            try { assistantInput && assistantInput.focus(); } catch (e) {}
+	            try { assistantConversation.scrollTop = assistantConversation.scrollHeight; } catch (e) {}
+	        }
+	    }
+
+	    function sendCustomMessage() {
+        const text = assistantInput.value.trim();
+        if (!text || isBusy) return;
+        // Evita enviar dos veces seguidas la misma entrada: si el nuevo texto es idéntico al último mensaje del usuario
         try {
-            data = await response.json();
-        } catch (e) {
-            throw new Error('Respuesta no-JSON del Worker');
-        }
-
-
-        const reply = data?.reply || "Ahora mismo estoy teniendo un tropiezo técnico 😅. Si quieres, lo vemos por WhatsApp o llamada.";
-        appendMessage('assistant', reply);
-        history.push({ role: 'assistant', content: reply });
-
-        showActions(data?.actions || [], data?.meta || {});
-    } catch (e) {
-        try { console.warn('[Asistente] Fallo al conectar con el Worker:', e); } catch(_) {}
-        const fallback = "Ups… me he quedado sin red un segundo 😅. Si quieres, lo cerramos por WhatsApp o llamada.";
-        appendMessage('assistant', fallback);
-        history.push({ role: 'assistant', content: fallback });
-        hideActions();
-    } finally {
-        isBusy = false;
-        if (assistantSend) assistantSend.disabled = false;
-    }
-}
-
-// Abrir / cerrar
-if (assistantBtn && assistantWidget) {
-    assistantBtn.addEventListener('click', () => {
-        const isOpen = assistantWidget.style.display !== 'none';
-        assistantWidget.style.display = isOpen ? 'none' : 'flex';
-        // Oculta el botón flotante cuando el chat está abierto (evita que tape el botón Enviar)
-        assistantBtn.style.display = isOpen ? 'flex' : 'none';
-        hideActions();
-        try { assistantWidget.classList.toggle('open', !isOpen); } catch (e) {}
-        if (!isOpen) {
-            // Mensaje inicial (solo una vez)
-            if (!assistantMessages || assistantMessages.children.length === 0) {
-                appendMessage('assistant', "¡Hola! 👋 Cuéntame qué necesitas (PC, portátil, móvil, WiFi, impresora…) y te digo por dónde tirar.");
+            const lastUserMsgEl = [...assistantConversation.querySelectorAll('.message.user')].pop();
+            const lastText = lastUserMsgEl ? (lastUserMsgEl.textContent || '').trim().toLowerCase() : '';
+            const now = text.toLowerCase();
+            if (lastText && now && lastText === now) {
+                // Responde con un mensaje que anime a aportar más detalles en lugar de repetir
+                appendMessage('😄 Te leo. Para no quedarnos en el “hola infinito”: dime el modelo del equipo y qué le pasa (o qué necesitas).', 'bot');
+                assistantInput.value = '';
+                // Mantén el foco para que el usuario continúe escribiendo
+                try { assistantInput && assistantInput.focus(); } catch (e) {}
+                return;
             }
-            try { assistantInput && assistantInput.focus && assistantInput.focus(); } catch (e) {}
+        } catch (e) {
+            // Silenciar errores de acceso al historial
         }
-    });
-}
+        appendMessage(text, 'user');
+        assistantInput.value = '';
+        // Mantén foco para escribir seguido sin tener que clicar otra vez
+        try { assistantInput && assistantInput.focus(); } catch (e) {}
+        saveConversation();
+        handleUserMessage(text);
+	    }
 
-if (assistantClose && assistantWidget) {
-    assistantClose.addEventListener('click', () => {
-        assistantWidget.style.display = 'none';
-        try{assistantBtn.style.display='block';}catch(e){}
-        // Vuelve a mostrar el botón flotante al cerrar
-        if (assistantBtn) assistantBtn.style.display = 'flex';
-        hideActions();
-    });
-}
+    if (assistantBtn && assistantWindow) {
+            assistantBtn.addEventListener('click', () => {
+                assistantWindow.classList.toggle('open');
+                // Oculta el botón flotante cuando el chat está abierto y muéstralo de nuevo cuando se cierra.
+                if (assistantWindow.classList.contains('open')) {
+                    assistantBtn.style.display = 'none';
+                    // Restaurar historial si existe; si no, mensaje de bienvenida
+                    const restored = restoreConversation();
+                    if (!restored) {
+                        assistantConversation.innerHTML = '';
+                        appendMessage('¡Hola! Soy el asistente de El Manitas Informático. Cuéntame tu problema (PC lento, no arranca, WiFi, impresoras, virus...) y te digo el siguiente paso.', 'bot');
+                    }
+                    assistantOptions.style.display = 'none';
+                    assistantInput?.focus();
+                } else {
+                    // Al cerrar, mostramos el botón para que el usuario pueda volver a abrir el asistente
+                    assistantBtn.style.display = 'flex';
+                }
+            });
+        assistantClose.addEventListener('click', () => {
+            assistantWindow.classList.remove('open');
+            // Vuelve a mostrar el botón flotante cuando se cierra el chat
+            assistantBtn.style.display = 'flex';
+        });
+        assistantOptions.addEventListener('click', (e) => {
+            if (e.target.classList.contains('assistant-option')) {
+                const message = e.target.dataset.message;
+                appendMessage(message, 'user');
+                assistantOptions.style.display = 'none';
+                try { assistantInput && assistantInput.focus(); } catch (e) {}
+                handleUserMessage(message);
+            }
+        });
+        assistantSend.addEventListener('click', sendCustomMessage);
+        assistantInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendCustomMessage();
+            }
+        });
+    }
 
-// Enviar
-if (assistantSend) assistantSend.addEventListener('click', () => handleUserMessage());
-if (assistantInput) {
-    assistantInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') handleUserMessage();
-    });
-}
-
-
-// ----- Botón de scroll al inicio -----
+    // ----- Botón de scroll al inicio -----
     const scrollBtn = document.getElementById('scroll-top-btn');
     if (scrollBtn) {
         window.addEventListener('scroll', () => {
@@ -2070,97 +2269,96 @@ if (assistantInput) {
   }
 })();
 
-    /**
-     * Genera los botones de acción (WhatsApp, llamada y cita) según lo devuelto por el Worker.
-     * Siempre añadimos la opción de pedir cita al final para que el usuario pueda reservar.
-     * @param {Array<{type:string,label:string}>} actionsList
-     */
-    function showActions(actionsList, meta) {
-        if (!assistantActions) return;
+const assistantActionsContainer = document.getElementById('assistant-actions');
 
-        // Limpia acciones previas
-        assistantActions.innerHTML = '';
+/**
+ * Genera los botones de acción según lo devuelto por el Worker.
+ * Inserta botones de llamada, WhatsApp y/o “Pedir cita” si corresponden.
+ * Si no hay acciones, oculta el contenedor.
+ * @param {Array<{type:string,label?:string}>} actionsList
+ * @param {object|null} meta Datos adicionales (por ejemplo, intent) para seguimiento
+ */
+function showActions(actionsList, meta) {
+    if (!assistantActionsContainer) return;
+    assistantActionsContainer.innerHTML = '';
+    const list = Array.isArray(actionsList) ? actionsList.filter(Boolean) : [];
 
-        // Normaliza entrada
-        const list = Array.isArray(actionsList) ? actionsList.filter(Boolean) : [];
-
-        // Si no hay acciones, ocultamos el contenedor y salimos
-        if (!list.length) {
-            assistantActions.style.display = 'none';
-            return;
+    // Acciones de llamada y WhatsApp
+    list.forEach(action => {
+        if (!action || !action.type) return;
+        const type = action.type;
+        if (type === 'whatsapp' || type === 'call') {
+            const btn = createAction(type, action.label || (type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
+            assistantActionsContainer.appendChild(btn);
         }
+    });
 
-        // Helper para crear botones con iconos y seguimiento
-        function createAction(type, label) {
-            let href = '#';
-            if (type === 'whatsapp') {
-                href = 'https://wa.me/34614832668';
-            } else if (type === 'call') {
-                href = 'tel:+34614832668';
-            }
-
-            const a = document.createElement('a');
-            a.className = 'assistant-action ' + (type === 'whatsapp' ? 'wa' : type === 'call' ? 'call' : '');
-            a.href = href;
-            a.setAttribute('data-ga-placement', 'assistant');
-            a.setAttribute('aria-label', label || (type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
-
-            // Tel: en la misma pestaña (mejor UX). WhatsApp: nueva pestaña.
-            if (type === 'call') {
-                a.target = '_self';
-                a.rel = '';
+    // Acción de pedir cita
+    if (list.some(a => a && a.type === 'appointment')) {
+        const citaBtn = document.createElement('button');
+        citaBtn.type = 'button';
+        citaBtn.className = 'assistant-action cita';
+        citaBtn.setAttribute('data-ga-placement','assistant');
+        citaBtn.innerHTML = `
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
+          Pedir cita
+        `;
+        citaBtn.addEventListener('click', () => {
+            try {
+                if (typeof trackAssistantEvent === 'function') {
+                    trackAssistantEvent('cita', { intent: meta && meta.intent ? String(meta.intent).slice(0, 40) : undefined, placement: 'assistant' });
+                }
+            } catch (e) {}
+            const target = document.getElementById('hero-contact-form') || document.getElementById('contacto');
+            if (target && typeof target.scrollIntoView === 'function') {
+                target.scrollIntoView({ behavior:'smooth', block:'start' });
             } else {
-                a.target = '_blank';
-                a.rel = 'noopener noreferrer';
+                window.location.hash = '#hero-contact-form';
             }
-
-            // SVG Icons (Bootstrap-like)
-            let svg = '';
-            if (type === 'whatsapp') {
-                svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>';
-            } else if (type === 'call') {
-                svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M11.883 1.113a1.49 1.49 0 0 0-2.109 0l-.755.755a1.49 1.49 0 0 0 0 2.108l.59.59c.324.324.405.809.238 1.222-.408 1.02-1.252 2.522-3.025 4.295-1.774 1.773-3.276 2.617-4.296 3.025a1.002 1.002 0 0 1-1.222-.238l-.59-.59a1.49 1.49 0 0 0-2.108 0l-.755.755a1.49 1.49 0 0 0 0 2.109l.931.93c1.28 1.281 3.342 1.4 4.822.28 1.426-1.082 3.437-2.562 5.91-5.036 2.474-2.474 3.954-4.485 5.036-5.911 1.12-1.48 1.001-3.543-.28-4.822l-.93-.931z"/></svg>';
-            }
-            a.innerHTML = svg + '<span>' + (label || '') + '</span>';
-            // Los clics se rastrean mediante el manejador global de enlaces (GA4)
-            return a;
-        }
-
-        // Insertar botones (WhatsApp / Llamar) según lo devuelto por el Worker
-        list.forEach(action => {
-            if (action.type === 'whatsapp' || action.type === 'call') {
-                const btn = createAction(action.type, action.label || (action.type === 'whatsapp' ? 'WhatsApp' : 'Llamar'));
-                assistantActions.appendChild(btn);
-            }
+            // Cerrar el chat y volver a mostrar el botón
+            if (typeof assistantWindow !== 'undefined' && assistantWindow) assistantWindow.classList.remove('open');
+            if (typeof assistantBtn !== 'undefined' && assistantBtn) assistantBtn.style.display = 'flex';
         });
-
-        // Botón "Formulario" SOLO cuando el asistente lo considere (actions incluye appointment)
-        const hasAppointment = list.some(a => a && a.type === 'appointment');
-        if (hasAppointment) {
-            const citaBtn = document.createElement('button');
-            citaBtn.type = 'button';
-            citaBtn.className = 'assistant-action cita';
-            citaBtn.setAttribute('data-ga-placement', 'assistant');
-            citaBtn.innerHTML = `
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
-              Formulario
-            `;
-            citaBtn.addEventListener('click', () => {
-                try {
-                    if (typeof trackAssistantEvent === 'function') {
-                        trackAssistantEvent('cita', { intent: meta && meta.intent ? meta.intent : null, placement: 'assistant' });
-                    }
-                } catch (e) {}
-                document.querySelector('#hero-contact-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                assistantWindow && assistantWindow.classList.remove('open');
-                if (typeof assistantBtn !== 'undefined' && assistantBtn) assistantBtn.style.display = 'flex';
-            });
-            assistantActions.appendChild(citaBtn);
-        }
-
-        // Mostrar el contenedor
-        assistantActions.style.display = 'flex';
+        assistantActionsContainer.appendChild(citaBtn);
     }
-});</script>
+
+    assistantActionsContainer.style.display = assistantActionsContainer.children.length ? 'flex' : 'none';
+}
+
+/**
+ * Crea un elemento de acción para llamar o mandar WhatsApp.
+ * Devuelve un enlace que abre la acción correspondiente.
+ * @param {string} type 'whatsapp' o 'call'
+ * @param {string} label Texto descriptivo
+ * @returns {HTMLAnchorElement}
+ */
+function createAction(type, label) {
+    let href = '#';
+    if (type === 'whatsapp') href = 'https://wa.me/34614832668';
+    else if (type === 'call') href = 'tel:+34614832668';
+    const a = document.createElement('a');
+    a.className = 'assistant-action ' + (type === 'whatsapp' ? 'wa' : 'call');
+    a.href = href;
+    a.setAttribute('data-ga-placement','assistant');
+    a.setAttribute('aria-label', label);
+    if (type === 'call') {
+        a.target = '_self';
+        a.rel = '';
+    } else {
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+    }
+    // Añadir icono SVG
+    let svg = '';
+    if (type === 'whatsapp') {
+        svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>';
+    } else {
+        svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M11.883 1.113a1.49 1.49 0 0 0-2.109 0l-.755.755a1.49 1.49 0 0 0 0 2.108l.59.59c.324.324.405.809.238 1.222-.408 1.02-1.252 2.522-3.025 4.295-1.774 1.773-3.276 2.617-4.296 3.025a1.002 1.002 0 0 1-1.222-.238l-.59-.59a1.49 1.49 0 0 0-2.108 0l-.755.755a1.49 1.49 0 0 0 0 2.109l.931.93c1.28 1.281 3.342 1.4 4.822.28 1.426-1.082 3.437-2.562 5.91-5.036 2.474-2.474 3.954-4.485 5.036-5.911 1.12-1.48 1.001-3.543-.28-4.822l-.93-.931z"/></svg>';
+    }
+    a.innerHTML = svg + '<span>' + label + '</span>';
+    return a;
+}
+});
+</script>
 </body>
 </html>
