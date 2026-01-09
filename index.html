@@ -1833,7 +1833,10 @@ document.addEventListener('DOMContentLoaded', function () {
      * Además inserta botones de CTA para contacto.
      * @param {string} message
      */
-	    async function handleUserMessage(message) {
+		    // Para no repetir el mismo aviso de "no puedo conectar" en cada turno.
+		    let offlineNoticeShown = false;
+
+		    async function handleUserMessage(message) {
 	        if (isBusy) return;
 	        assistantOptions.style.display = 'none';
 	        setBusy(true);
@@ -1860,17 +1863,19 @@ document.addEventListener('DOMContentLoaded', function () {
 	            let actionsList = [];
 	            let meta = null;
 
-	            if (!data || typeof data !== 'object') {
-	                replyText =
-                    // Cuando falla la llamada al Worker, usamos el fallback humano de generateResponse.
-                    // Incluimos una breve nota de que no podemos conectarnos a la IA ahora mismo.
-                    generateResponse(message) +
-                    '\n\nParece que ahora mismo no puedo conectarme a la IA, pero no te preocupes, seguimos avanzando.';
-	                actionsList = [
-	                    { type: 'whatsapp', label: 'WhatsApp' },
-	                    { type: 'call', label: 'Llamar' },
-	                ];
-	            } else {
+		            if (!data || typeof data !== 'object') {
+		                // Fallback humano cuando el Worker no responde (red/timeout).
+		                // OJO: no añadimos el mismo aviso SIEMPRE para no sonar a bot.
+		                replyText = generateResponse(message);
+		                if (!offlineNoticeShown) {
+		                    offlineNoticeShown = true;
+		                    replyText += '\n\n(Nota rápida: ahora mismo estoy teniendo un microcorte técnico con la IA. Si te urge, WhatsApp o llamada y lo resolvemos más rápido.)';
+		                }
+		                actionsList = [
+		                    { type: 'whatsapp', label: 'WhatsApp' },
+		                    { type: 'call', label: 'Llamar' },
+		                ];
+		            } else {
 	                replyText = (data.reply || '').toString();
 	                actionsList = Array.isArray(data.actions) ? data.actions : [];
 	                meta = data.meta && typeof data.meta === 'object' ? data.meta : null;
