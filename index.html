@@ -2269,7 +2269,7 @@ const assistantActionsContainer = document.getElementById('assistant-actions');
             }
         });
 
-        // Botón "Pedir cita" SOLO cuando el asistente lo considere (actions incluye appointment)
+        // Botón "Formulario" SOLO cuando el asistente lo considere (actions incluye appointment)
         const hasAppointment = list.some(a => a && a.type === 'appointment');
         if (hasAppointment) {
             const citaBtn = document.createElement('button');
@@ -2278,7 +2278,7 @@ const assistantActionsContainer = document.getElementById('assistant-actions');
             citaBtn.setAttribute('data-ga-placement', 'assistant');
             citaBtn.innerHTML = `
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
-              Pedir cita
+              Formulario
             `;
             citaBtn.addEventListener('click', () => {
                 try {
