@@ -43,7 +43,7 @@
       "telephone": "+34 614 832 668",
       "email": "elmanitasinformatico.es@gmail.com",
       "url": "https://elmanitasinformatico.es/",
-      "priceRange": "€20-€40",
+      "priceRange": "€30-€45",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Toledo",
@@ -878,6 +878,18 @@
   min-height:42px;
   flex:1 1 0;
 }
+
+.assistant-action svg{
+  width:16px;
+  height:16px;
+  flex:0 0 16px;
+  display:block;
+}
+.assistant-action.cita{
+  background: var(--color-accent);
+  color:#ffffff;
+}
+.assistant-action.cita:hover{ filter: brightness(1.05); }
 .assistant-action:hover {
             transform: translateY(-2px);
         }
@@ -1271,15 +1283,15 @@
                 <div class="services-overview">
                     <div class="hero-card">
                         <div class="hero-card-title">Revisión y puesta a punto</div>
-                        <div class="hero-price">desde 20 €</div>
+                        <div class="hero-price">desde 60 €</div>
                     </div>
                     <div class="hero-card">
                         <div class="hero-card-title">Instalación Windows/Linux</div>
-                        <div class="hero-price">desde 30 €</div>
+                        <div class="hero-price">desde 60 €</div>
                     </div>
                     <div class="hero-card">
                         <div class="hero-card-title">Cambio a SSD</div>
-                        <div class="hero-price">desde 40 €</div>
+                        <div class="hero-price">desde 60 €</div>
                     </div>
                 </div>
                 <div class="hero-chip-row">
@@ -1350,23 +1362,23 @@
             <div class="pricing-table">
                 <div class="pricing-item">
                     <h3>Servicios de soporte</h3>
-                    <p class="price">20 € – 40 €/hora</p>
+                    <p class="price">30 € – 45 €/hora</p>
                     <ul>
-                        <li>Revisión / puesta a punto de PC o portátil: desde 20 €</li>
-                        <li>Instalación de Windows o Linux: desde 30 €</li>
-                        <li>Limpieza interna + pasta térmica: desde 25 €</li>
-                        <li>Configuración de impresoras y red: desde 25 €</li>
-                        <li>Diagnóstico y reparación de hardware: desde 40 €</li>
+                        <li>Revisión / puesta a punto de PC o portátil: desde 30 €</li>
+                        <li>Instalación de Windows o Linux: desde 60 €</li>
+                        <li>Limpieza interna + pasta térmica: desde 45 €</li>
+                        <li>Configuración de impresoras y red: desde 35 €</li>
+                        <li>Diagnóstico y reparación de hardware: desde 50 €</li>
                     </ul>
                 </div>
                 <div class="pricing-item">
                     <h3>Mantenimiento &amp; optimización</h3>
-                    <p class="price">Paquetes desde 100 €</p>
+                    <p class="price">Paquetes desde 120 €</p>
                     <ul>
-                        <li>Cambio a SSD / clonación: desde 40 €</li>
-                        <li>Actualización de RAM / gráfica: desde 35 €</li>
-                        <li>Eliminación de virus y malware: desde 20 €</li>
-                        <li>Bono 2 h: 100 €; 5 h: 225 €; 10 h: 450 €; 20 h: 850 €</li>
+                        <li>Cambio a SSD / clonación: desde 60 €</li>
+                        <li>Actualización de RAM / gráfica: desde 45 €</li>
+                        <li>Eliminación de virus y malware: desde 45 €</li>
+                        <li>Bono 2 h: 75 €; 5 h: 175 €; 10 h: 330 €; 20 h: 620 €</li>
                     </ul>
                 </div>
             </div>
@@ -2170,129 +2182,191 @@ const history = [...assistantConversation.querySelectorAll('.message')]
      * el contexto donde se produjo el clic.
      *-------------------------------------------------------------*/
     
-  /* =========================================================
-     GA4 – eventos de conversión (WhatsApp / Llamar / Cita / Form / Asistente)
-     - No rompe nada si gtag todavía no está cargado (cola + flush)
-     - Parámetros limpios y consistentes para informes
-  ========================================================= */
-  (function () {
-    // --- cola por si el usuario hace click ANTES de aceptar cookies ---
-    window.__ga4q = window.__ga4q || [];
-    function ga4Send(eventName, params) {
-      try {
-        if (typeof gtag === "function") {
-          gtag("event", eventName, params || {});
-        } else {
-          window.__ga4q.push([eventName, params || {}]);
-        }
-      } catch (_) {}
+/* ================================================================
+   GA4 – eventos de conversión (WhatsApp / Llamar / Cita / Form submit)
+   - Nombres: click_whatsapp, click_call, click_cita, form_submit
+   - Parámetros limpios: method, placement, label, intent (si aplica)
+   ================================================================ */
+(function () {
+  window.dataLayer = window.dataLayer || [];
+
+  function cleanParams(obj) {
+    const o = Object.assign({}, obj || {});
+    for (const k of Object.keys(o)) {
+      if (o[k] === null || o[k] === undefined || o[k] === "") delete o[k];
     }
+    return o;
+  }
 
-    // flush best-effort (máx ~5s)
-    (function flushQueue() {
-      var tries = 0;
-      var t = setInterval(function () {
-        tries++;
-        if (typeof gtag === "function" && window.__ga4q && window.__ga4q.length) {
-          try {
-            var q = window.__ga4q.slice(0);
-            window.__ga4q.length = 0;
-            q.forEach(function (it) { gtag("event", it[0], it[1] || {}); });
-          } catch (_) {}
-        }
-        if (tries >= 10) clearInterval(t);
-      }, 500);
-    })();
+  function getPlacement(el) {
+    if (!el) return "unknown";
+    const c = (sel) => (el.closest ? el.closest(sel) : null);
+    if (c("#assistant-widget") || c(".assistant-widget") || c(".assistant-window")) return "assistant";
+    if (c("header")) return "header";
+    if (c("#hero") || c(".hero")) return "hero";
+    if (c("#hero-contact-form") || c("#contact") || c("#contacto") || c("#formulario") || c("form")) return "contact";
+    if (c("footer")) return "footer";
+    return "page";
+  }
 
-    function on(el, ev, fn) {
-      if (!el) return;
-      el.addEventListener(ev, fn, { passive: true });
+  function track(name, params = {}) {
+    try {
+      const p = cleanParams(params);
+      if (typeof window.gtag === "function") {
+        window.gtag("event", name, p);
+      } else {
+        window.dataLayer.push(Object.assign({ event: name }, p));
+      }
+    } catch (e) {}
+  }
+
+  window.__manitasTrack = track;
+  window.__manitasPlacement = getPlacement;
+
+  window.trackAssistantEvent = function (type, extra = {}) {
+    const base = cleanParams(Object.assign({ placement: "assistant" }, extra || {}));
+
+    if (type === "whatsapp") return track("click_whatsapp", Object.assign({ method: "assistant" }, base));
+    if (type === "call") return track("click_call", Object.assign({ method: "assistant" }, base));
+    if (type === "cita") return track("click_cita", Object.assign({ method: "assistant" }, base));
+
+    // Compatibilidad con nombres antiguos
+    if (type === "assistant_action_whatsapp") return track("click_whatsapp", Object.assign({ method: "assistant" }, base));
+    if (type === "assistant_action_call") return track("click_call", Object.assign({ method: "assistant" }, base));
+    if (type === "cita_click") return track("click_cita", Object.assign({ method: "assistant" }, base));
+
+    return track("assistant_event", Object.assign({ action: type, method: "assistant" }, base));
+  };
+
+  // Track clicks globales en enlaces WhatsApp / tel:
+  document.querySelectorAll('a[href^="tel:"], a[href*="wa.me"], a[href*="api.whatsapp.com"]').forEach((a) => {
+    a.addEventListener("click", () => {
+      const href = a.getAttribute("href") || "";
+      const placement = (a.getAttribute("data-ga-placement") || getPlacement(a) || "page");
+      const label = (a.getAttribute("aria-label") || a.textContent || "").trim().slice(0, 40) || undefined;
+
+      if (href.startsWith("tel:")) {
+        track("click_call", { method: (placement === "assistant" ? "assistant" : "tel"), placement, label });
+      } else if (/wa\.me|api\.whatsapp\.com/i.test(href)) {
+        track("click_whatsapp", { method: (placement === "assistant" ? "assistant" : "whatsapp"), placement, label });
+      }
+    });
+  });
+
+  // Track “Pedir cita” (enlaces que llevan al formulario)
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    const href = (a.getAttribute("href") || "").toLowerCase();
+    if (["#hero-contact-form", "#contact", "#contacto", "#formulario", "#solicitar-cita"].includes(href)) {
+      a.addEventListener("click", () => {
+        const placement = (a.getAttribute("data-ga-placement") || getPlacement(a) || "page");
+        track("click_cita", { method: "scroll", placement });
+      });
     }
+  });
 
-    function getPlacement(el) {
-      try {
-        if (el && el.dataset && el.dataset.placement) return el.dataset.placement;
-        var p = el && el.closest ? el.closest("[data-placement]") : null;
-        if (p && p.dataset && p.dataset.placement) return p.dataset.placement;
-        if (el && el.closest && el.closest("header")) return "header";
-        if (el && el.closest && el.closest("footer")) return "footer";
-        if (el && el.closest && el.closest("#assistant-widget")) return "assistant";
-      } catch (_) {}
-      return "page";
-    }    // --- Clicks: WhatsApp / Teléfono / Cita (anclas a contacto) ---
-    document.addEventListener("click", function (e) {
-      var a = e.target && e.target.closest ? e.target.closest("a") : null;
+
+  // Track redes sociales y CTAs (sin duplicar WhatsApp/teléfono)
+  // - Redes: click_instagram, click_facebook, click_google
+  // - Email: click_email (si existe mailto:)
+  // - CTAs: click_button (links con pinta de botón) / click_button (botones)
+  document.addEventListener(
+    "click",
+    (e) => {
+      const a = e.target && e.target.closest ? e.target.closest("a") : null;
       if (!a) return;
 
-      var href = (a.getAttribute("href") || "").trim();
+      const href = (a.getAttribute("href") || "").trim();
       if (!href) return;
 
-      var placement = getPlacement(a);
+      // Evitar duplicar tracking ya existente de tel/WhatsApp
+      if (href.startsWith("tel:")) return;
+      if (/wa\.me|api\.whatsapp\.com/i.test(href)) return;
 
-      // Teléfono
-      if (href.startsWith("tel:")) {
-        ga4Send("click_call", {
-          method: "tel",
-          placement: placement,
-          href: href
-        });
+      const placement = (a.getAttribute("data-ga-placement") || getPlacement(a) || "page");
+      const label = (a.getAttribute("aria-label") || a.getAttribute("data-track-label") || a.textContent || "").trim().slice(0, 80) || undefined;
+
+      // Instagram
+      if (/instagram\.com/i.test(href)) {
+        track("click_instagram", { method: "link", placement, href, label });
         return;
       }
 
-      // WhatsApp
-      if (/wa\.me\/|api\.whatsapp\.com\/|whatsapp/i.test(href)) {
-        ga4Send("click_whatsapp", {
-          method: "whatsapp",
-          placement: placement,
-          href: href
-        });
+      // Facebook
+      if (/facebook\.com|fb\.com|fb\.me/i.test(href)) {
+        track("click_facebook", { method: "link", placement, href, label });
         return;
       }
 
-      // “Pedir cita” => salto a #contacto o /#contacto
-      if (href === "#contacto" || /\/#contacto$/i.test(href)) {
-        ga4Send("click_appointment", {
-          method: "anchor",
-          placement: placement,
-          href: href
-        });
+      // Google (perfil / reseñas / maps)
+      if (/share\.google|g\.page|google\.com\/maps|goo\.gl\/maps/i.test(href)) {
+        track("click_google", { method: "link", placement, href, label });
         return;
       }
-    }, { passive: true });
 
-    // --- Envío formulario (lead) ---
-    try {
-      var form = document.getElementById("contact-form");
-      if (form) {
-        form.addEventListener("submit", function () {
-          ga4Send("form_submit", {
-            form_id: "contact-form",
-            placement: "contact_section"
-          });
-        });
+      // Email
+      if (href.toLowerCase().startsWith("mailto:")) {
+        track("click_email", { method: "mailto", placement, href, label });
+        return;
       }
-    } catch (_) {}
 
-    // --- Asistente IA: puente para que el JS del asistente pueda disparar eventos ---
-    window.trackAssistantEvent = function (eventName, params) {
-      ga4Send(eventName, Object.assign({ placement: "assistant" }, params || {}));
-    };
+      // “Pedir cita” (salto a contacto)
+      if (href === "#contacto" || href === "#contact" || /\/#contacto$/i.test(href) || /\/#contact$/i.test(href)) {
+        // En esta web usamos click_cita como evento de cita/lead
+        track("click_cita", { method: "anchor", placement, href, label });
+        return;
+      }
 
-    // --- Acciones del asistente (botones dinámicos) ---
-    document.addEventListener("click", function (e) {
-      var btn = e.target && e.target.closest ? e.target.closest("[data-assistant-action]") : null;
+      // CTAs genéricos en <a> (evita ruido: solo si "parece botón")
+      const cls = (a.getAttribute("class") || "").toLowerCase();
+      const role = (a.getAttribute("role") || "").toLowerCase();
+      const isButtonLike =
+        role === "button" ||
+        cls.includes("btn") ||
+        cls.includes("button") ||
+        a.hasAttribute("data-track") ||
+        a.hasAttribute("data-cta");
+
+      if (isButtonLike) {
+        track("click_button", { method: "cta", placement, href, label, id: a.id || undefined });
+      }
+    },
+    { passive: true }
+  );
+
+  // Clicks en <button> (tema, UI, etc.) – evita duplicar submits del formulario
+  document.addEventListener(
+    "click",
+    (e) => {
+      const btn = e.target && e.target.closest ? e.target.closest("button") : null;
       if (!btn) return;
+      const type = (btn.getAttribute("type") || "").toLowerCase();
+      if (type === "submit") return;
 
-      var type = btn.getAttribute("data-assistant-action") || "unknown";
-      ga4Send("assistant_action_click", {
-        action_type: type,
-        placement: "assistant",
-        label: (btn.textContent || "").trim().slice(0, 60)
-      });
-    }, { passive: true });
+      const placement = (btn.getAttribute("data-ga-placement") || getPlacement(btn) || "page");
+      const label = (btn.getAttribute("aria-label") || btn.getAttribute("data-track-label") || btn.textContent || "").trim().slice(0, 80) || "(sin-texto)";
 
-  })();
+      track("click_button", { method: "button", placement, label, id: btn.id || undefined });
+    },
+    { passive: true }
+  );
 
+
+  // Track envío del formulario (sin PII)
+  const contactForm = document.querySelector("form#contact-form");
+  if (contactForm) {
+    contactForm.addEventListener(
+      "submit",
+      () => {
+        track("form_submit", {
+          form_id: contactForm.id || "contact-form",
+          method: "contact_form",
+          placement: "contact",
+        });
+      },
+      { capture: true }
+    );
+  }
+})();
 
 const assistantActionsContainer = document.getElementById('assistant-actions');
 
@@ -2325,10 +2399,12 @@ function showActions(actionsList, meta) {
         citaBtn.className = 'assistant-action cita';
         citaBtn.setAttribute('data-ga-placement','assistant');
         citaBtn.innerHTML = `
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10h5v5H7v-5zm7-7h-1V1h-2v2H9V1H7v2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 18H6V8h12v13z"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm12 8H5v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9ZM6 6a1 1 0 0 0-1 1v1h14V7a1 1 0 0 0-1-1H6Zm2 6h2v2H8v-2Zm4 0h2v2h-2v-2Z"/>
+          </svg>
           Pedir cita
         `;
-        citaBtn.addEventListener('click', () => {
+citaBtn.addEventListener('click', () => {
             try {
                 if (typeof trackAssistantEvent === 'function') {
                     trackAssistantEvent('cita', { intent: meta && meta.intent ? String(meta.intent).slice(0, 40) : undefined, placement: 'assistant' });
