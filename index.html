@@ -739,7 +739,7 @@
             /* Reducimos la separación inferior para que el chat no desborde la parte superior de la pantalla.
              * Con bottom: 80px y una altura máxima calculada en función del viewport, el asistente siempre es
              * completamente visible incluso en portátiles o tablets de baja resolución. */
-            bottom: 80px;
+            bottom: calc(env(safe-area-inset-bottom, 0px) + 80px);
             right: 20px;
             /* Aumentamos el ancho y lo limitamos al ancho de la pantalla menos los márgenes para evitar desbordes */
             width: 340px;
@@ -1114,7 +1114,7 @@
 .assistant-btn{
   position: fixed;
   right: 20px;
-  bottom: 20px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
   z-index: 9999;
   display: inline-flex;
   align-items: center;
@@ -1180,9 +1180,9 @@
   gap:10px;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(255,255,255,0.92);
-  color: #1f1f1f;
+  border: 1px solid var(--color-border);
+  background: var(--color-card);
+color: #1f1f1f;
   font-weight: 700;
   text-decoration: none;
   cursor: pointer;
@@ -1214,6 +1214,29 @@
 @media (max-width: 480px){
   .assistant-action{ padding: 12px 14px; }
 }
+
+
+/* Ajuste "Google Calendar" para que no rompa en modo oscuro */
+[data-theme="dark"] .assistant-action{
+  background: rgba(255,255,255,0.06);
+  border-color: rgba(255,255,255,0.14);
+  color: var(--color-text);
+}
+[data-theme="dark"] .assistant-action:hover{
+  background: rgba(255,255,255,0.09);
+}
+[data-theme="light"] .assistant-action{
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.10);
+}
+
+/* Evitar que el botón flotante tape los enlaces legales en móvil */
+@media (max-width: 640px){
+  footer{ padding-bottom: 96px; } /* deja espacio para el FAB */
+  body.assistant-lift .assistant-btn{ bottom: calc(env(safe-area-inset-bottom, 0px) + 110px); }
+  body.assistant-lift .assistant-window{ bottom: calc(env(safe-area-inset-bottom, 0px) + 170px); }
+}
+
 </style>
 </head>
 <body>
@@ -2492,5 +2515,35 @@ function createAction(type, label) {
 }
 });
 </script>
+
+<script>
+/* Móvil: si el footer entra en pantalla, levantamos el botón/ventana del asistente para no tapar los enlaces */
+(function(){
+  const mq = window.matchMedia("(max-width: 640px)");
+  const footer = document.querySelector("footer");
+  if(!footer) return;
+
+  let io = null;
+  function enable(){
+    if(io) return;
+    io = new IntersectionObserver((entries)=>{
+      const hit = entries && entries[0] && entries[0].isIntersecting;
+      document.body.classList.toggle("assistant-lift", !!hit);
+    }, { root: null, threshold: 0.01 });
+    io.observe(footer);
+  }
+  function disable(){
+    document.body.classList.remove("assistant-lift");
+    if(io){ io.disconnect(); io = null; }
+  }
+  function refresh(){
+    if(mq.matches) enable(); else disable();
+  }
+  refresh();
+  mq.addEventListener ? mq.addEventListener("change", refresh) : mq.addListener(refresh);
+  window.addEventListener("orientationchange", refresh);
+})();
+</script>
+
 </body>
 </html>
