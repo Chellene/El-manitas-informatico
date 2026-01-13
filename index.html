@@ -840,23 +840,33 @@
   display:block;
 }
 /* Botón para volver al inicio */
-        .scroll-top-btn {
-            position: fixed;
-            bottom: 20px;
-            /* Reubicamos la flecha de scroll hacia arriba en la esquina izquierda
-               para que no se solape con el botón del asistente. */
-            left: 20px;
-            right: auto;
-            background: var(--color-accent);
-            color: #022c22;
-            border-radius: var(--radius-full);
-            padding: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            display: none;
-            z-index: 1001;
-        }
+        .scroll-top-btn{
+  position:fixed;
+  left:18px;
+  bottom:18px;
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.92);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:9998;
+  opacity:0;
+  transform: translateY(10px) scale(0.98);
+  pointer-events:none;
+  transition: transform .2s ease, opacity .2s ease, background .2s ease;
+  backdrop-filter: blur(10px);
+}
+.scroll-top-btn.is-visible{
+  opacity:1;
+  transform: translateY(0) scale(1);
+  pointer-events:auto;
+}
+
 
         /* Estilos para los mensajes dentro del asistente virtual */
         .assistant-conversation .message {
@@ -1128,7 +1138,7 @@
   box-shadow: 0 6px 18px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.12);
   cursor: pointer;
   user-select: none;
-  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
 }
 .assistant-btn:hover{
   transform: translateY(-1px);
@@ -1176,19 +1186,30 @@
 .assistant-action{
   display:flex;
   align-items:center;
-  justify-content:flex-start;
+  justify-content:center;
   gap:10px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--color-border);
-  background: var(--color-card);
-color: #1f1f1f;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+  width:100%;
+  padding:12px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.92);
+  color: var(--color-text);
+  font-weight:700;
+  font-size:16px;
+  line-height:1;
+  letter-spacing:0.1px;
+  text-decoration:none;
+  cursor:pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.16);
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, opacity .2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
+button.assistant-action{
+  font: inherit;
+  -webkit-appearance:none;
+  appearance:none;
+}
+
 .assistant-action:hover{
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(0,0,0,0.16);
@@ -1235,6 +1256,25 @@ color: #1f1f1f;
   footer{ padding-bottom: 96px; } /* deja espacio para el FAB */
   body.assistant-lift .assistant-btn{ bottom: calc(env(safe-area-inset-bottom, 0px) + 110px); }
   body.assistant-lift .assistant-window{ bottom: calc(env(safe-area-inset-bottom, 0px) + 170px); }
+}
+
+
+/* Evitar que botones flotantes tapen enlaces del footer (móvil) */
+body.footer-lift .assistant-btn,
+body.footer-lift .scroll-top-btn{
+  transform: translateY(-78px);
+}
+body.footer-hide .assistant-btn,
+body.footer-hide .scroll-top-btn{
+  opacity:0;
+  pointer-events:none;
+  transform: translateY(-78px) scale(0.98);
+}
+@media (max-width: 480px){
+  body.footer-lift .assistant-btn,
+  body.footer-lift .scroll-top-btn{
+    transform: translateY(-92px);
+  }
 }
 
 </style>
@@ -1663,12 +1703,12 @@ color: #1f1f1f;
 <button id="assistant-send" type="button">Enviar</button>
 </div>
 <!-- Contenedor para acciones dinámicas (llamada, WhatsApp, cita) que se generarán según la respuesta del asistente -->
-<div aria-label="Acciones rápidas" class="assistant-actions" id="assistant-actions" style="display:none;"></div>
+<div aria-label="Acciones rápidas" class="assistant-actions" id="assistant-actions" ></div>
 </div>
 <!-- Botón flotante para subir al inicio -->
 <div class="scroll-top-btn" id="scroll-top-btn">↑</div>
 <!-- Banner de cookies -->
-<div class="cookie-banner" id="cookie-banner" style="display:none;">
+<div class="cookie-banner" id="cookie-banner" >
 <span>Utilizamos cookies propias y de terceros para analizar el tráfico y mejorar la experiencia. Puedes aceptarlas o rechazarlas.</span>
 <button id="cookie-accept">Aceptar</button>
 <button id="cookie-decline">Rechazar</button>
@@ -2108,13 +2148,34 @@ const history = [...assistantConversation.querySelectorAll('.message')]
     if (scrollBtn) {
         window.addEventListener('scroll', () => {
             if (window.scrollY > 400) {
-                scrollBtn.style.display = 'flex';
+                scrollBtn.classList.add('is-visible');
             } else {
-                scrollBtn.style.display = 'none';
+                scrollBtn.classList.remove('is-visible');
             }
         });
         scrollBtn.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // ----- Evitar solape con enlaces del footer (móvil) -----
+    // Cuando el footer entra en pantalla, levantamos (y si hace falta, ocultamos suavemente)
+    // los botones flotantes (Asistente IA y subir arriba) para que no tapen los enlaces legales.
+    const footerEl = document.querySelector('footer');
+    if (footerEl && 'IntersectionObserver' in window) {
+      const footerIO = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const ratio = entry.intersectionRatio || 0;
+          if (entry.isIntersecting) {
+            document.body.classList.add('footer-lift');
+            // Si estás muy abajo (ratio alto), los ocultamos suavemente
+            if (ratio > 0.55) document.body.classList.add('footer-hide');
+            else document.body.classList.remove('footer-hide');
+          } else {
+            document.body.classList.remove('footer-lift','footer-hide');
+          }
+        });
+      }, { threshold: [0, 0.15, 0.55] });
+      footerIO.observe(footerEl);
+    }
         });
     }
 
