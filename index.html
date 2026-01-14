@@ -2,6 +2,21 @@
 
 <html lang="es">
 <head>
+
+<script>
+(function(){
+  // Evita el "flash" de los botones flotantes antes de que cargue el JS principal.
+  try {
+    var consent = null;
+    try { consent = localStorage.getItem('cookie_consent'); } catch (e) {}
+    if (!consent) {
+      var m = document.cookie.match(/(?:^|; )cookie_consent=([^;]+)/);
+      consent = m ? decodeURIComponent(m[1]) : null;
+    }
+    if (!consent) document.documentElement.classList.add('cookies-undecided');
+  } catch (e) {}
+})();
+</script>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <!-- Analytics se cargará dinámicamente tras aceptar cookies -->
@@ -841,6 +856,8 @@
 }
 /* Botón para volver al inicio */
         .scroll-top-btn{
+  font-size:0; /* evita que el glyph influya */
+
   position:fixed;
   left:18px;
   bottom:18px;
@@ -854,7 +871,7 @@
   align-items:center;
   justify-content:center;
   cursor:pointer;
-  z-index:9998;
+  z-index:1001;
   opacity:0;
   transform: translateY(10px) scale(0.98);
   pointer-events:none;
@@ -866,6 +883,17 @@
   transform: translateY(0) scale(1);
   pointer-events:auto;
 }
+
+/* Icono del botón "subir arriba" (más legible en móvil) */
+.scroll-top-icon{
+  width:22px;
+  height:22px;
+  display:block;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 5l7 7-1.41 1.41L13 8.83V20h-2V8.83L6.41 13.41 5 12l7-7z'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 5l7 7-1.41 1.41L13 8.83V20h-2V8.83L6.41 13.41 5 12l7-7z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+
 
 
         /* Estilos para los mensajes dentro del asistente virtual */
@@ -1125,7 +1153,7 @@
   position: fixed;
   right: 20px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
-  z-index: 9999;
+  z-index:1001;
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -1139,6 +1167,41 @@
   cursor: pointer;
   user-select: none;
   transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.assistant-btn-bubble{
+  width:22px;
+  height:22px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:#1a73e8;
+}
+.assistant-btn-bubble svg{
+  width:22px;
+  height:22px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.assistant-btn.is-cookie-blocked{
+  opacity:0;
+  transform:translateY(8px);
+  pointer-events:none;
+}
+
+/* Antes de decidir cookies, ocultamos los botones flotantes (móvil) para que no tapen el banner */
+html.cookies-undecided #assistant-btn,
+html.cookies-undecided #scroll-top-btn{
+  opacity:0;
+  transform:translateY(8px);
+  pointer-events:none;
+}
+#scroll-top-btn.is-cookie-blocked{
+  opacity:0;
+  transform:translateY(8px);
+  pointer-events:none;
 }
 .assistant-btn:hover{
   transform: translateY(-1px);
@@ -1262,10 +1325,14 @@ button.assistant-action{
 /* Evitar que botones flotantes tapen enlaces del footer (móvil) */
 body.footer-lift .assistant-btn,
 body.footer-lift .scroll-top-btn{
+  font-size:0; /* evita que el glyph influya */
+
   transform: translateY(-78px);
 }
 body.footer-hide .assistant-btn,
 body.footer-hide .scroll-top-btn{
+  font-size:0; /* evita que el glyph influya */
+
   opacity:0;
   pointer-events:none;
   transform: translateY(-78px) scale(0.98);
@@ -1273,10 +1340,35 @@ body.footer-hide .scroll-top-btn{
 @media (max-width: 480px){
   body.footer-lift .assistant-btn,
   body.footer-lift .scroll-top-btn{
+  font-size:0; /* evita que el glyph influya */
+
     transform: translateY(-92px);
   }
 }
 
+
+/* Logo dentro del botón flotante del asistente */
+.assistant-btn-logo{
+  width: 26px;
+  height: 26px;
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.assistant-btn-icon{
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.16);
+}
+html.light .assistant-btn-icon{
+  background: rgba(0,0,0,.06);
+  border-color: rgba(0,0,0,.10);
+}
 </style>
 </head>
 <body>
@@ -1677,7 +1769,14 @@ body.footer-hide .scroll-top-btn{
 </nav>
 </footer>
 <!-- Botón flotante para abrir el asistente IA -->
-<button class="assistant-btn" id="assistant-btn" type="button" aria-label="Asistente IA" title="Asistente IA">  <span class="assistant-btn-icon" aria-hidden="true"></span>  <span class="assistant-btn-text">Asistente IA</span></button>
+<button id="assistant-btn" class="assistant-btn" type="button" aria-label="Asistente IA">
+  <span class="assistant-btn-bubble" aria-hidden="true">
+    <svg viewBox="0 0 24 24" role="img" focusable="false">
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"></path>
+    </svg>
+  </span>
+  <span class="assistant-btn-text">Asistente IA</span>
+</button>
 <!-- Ventana del asistente IA -->
 <div aria-label="Asistente IA" class="assistant-window" id="assistant-window">
 <div class="assistant-header">
@@ -1706,7 +1805,7 @@ body.footer-hide .scroll-top-btn{
 <div aria-label="Acciones rápidas" class="assistant-actions" id="assistant-actions" ></div>
 </div>
 <!-- Botón flotante para subir al inicio -->
-<div class="scroll-top-btn" id="scroll-top-btn">↑</div>
+<div class="scroll-top-btn" id="scroll-top-btn"><span class="scroll-top-icon" aria-hidden="true"></span></div>
 <!-- Banner de cookies -->
 <div class="cookie-banner" id="cookie-banner" >
 <span>Utilizamos cookies propias y de terceros para analizar el tráfico y mejorar la experiencia. Puedes aceptarlas o rechazarlas.</span>
@@ -2147,39 +2246,56 @@ const history = [...assistantConversation.querySelectorAll('.message')]
     const scrollBtn = document.getElementById('scroll-top-btn');
     if (scrollBtn) {
         window.addEventListener('scroll', () => {
-            if (window.scrollY > 400) {
-                scrollBtn.classList.add('is-visible');
-            } else {
-                scrollBtn.classList.remove('is-visible');
-            }
+            if (window.scrollY > 400) scrollBtn.classList.add('is-visible');
+            else scrollBtn.classList.remove('is-visible');
         });
         scrollBtn.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
 
     // ----- Evitar solape con enlaces del footer (móvil) -----
-    // Cuando el footer entra en pantalla, levantamos (y si hace falta, ocultamos suavemente)
-    // los botones flotantes (Asistente IA y subir arriba) para que no tapen los enlaces legales.
+    // Cuando el footer entra en pantalla, levantamos y/o ocultamos suavemente
+    // los botones flotantes (Asistente IA y subir arriba) para no tapar los enlaces legales.
     const footerEl = document.querySelector('footer');
     if (footerEl && 'IntersectionObserver' in window) {
-      const footerIO = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          const ratio = entry.intersectionRatio || 0;
-          if (entry.isIntersecting) {
-            document.body.classList.add('footer-lift');
-            // Si estás muy abajo (ratio alto), los ocultamos suavemente
-            if (ratio > 0.55) document.body.classList.add('footer-hide');
-            else document.body.classList.remove('footer-hide');
-          } else {
-            document.body.classList.remove('footer-lift','footer-hide');
-          }
-        });
-      }, { threshold: [0, 0.15, 0.55] });
-      footerIO.observe(footerEl);
-    }
-        });
+        const footerIO = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const ratio = entry.intersectionRatio || 0;
+                if (entry.isIntersecting) {
+                    document.body.classList.add('footer-lift');
+                    // Si estás muy abajo (ratio alto), los ocultamos suavemente
+                    if (ratio > 0.55) document.body.classList.add('footer-hide');
+                    else document.body.classList.remove('footer-hide');
+                } else {
+                    document.body.classList.remove('footer-lift', 'footer-hide');
+                }
+            });
+        }, { threshold: [0, 0.15, 0.55] });
+        footerIO.observe(footerEl);
     }
 
     // ----- Gestión del consentimiento de cookies -----
+
+    // ----- Persistencia consentimiento (localStorage + cookie fallback) -----
+    function setConsent(value){
+        try { localStorage.setItem('cookie_consent', value); } catch (e) {}
+        try {
+            // 180 días, SameSite=Lax
+            document.cookie = 'cookie_consent=' + encodeURIComponent(value) + '; Max-Age=' + (60*60*24*180) + '; Path=/; SameSite=Lax';
+        } catch (e) {}
+    }
+    function getConsent(){
+        try {
+            const v = localStorage.getItem('cookie_consent');
+            if (v) return v;
+        } catch (e) {}
+        try {
+            const m = document.cookie.match(/(?:^|; )cookie_consent=([^;]+)/);
+            return m ? decodeURIComponent(m[1]) : null;
+        } catch (e) { return null; }
+    }
+
     const cookieBanner = document.getElementById('cookie-banner');
     const cookieAccept = document.getElementById('cookie-accept');
     const cookieDecline = document.getElementById('cookie-decline');
@@ -2201,7 +2317,20 @@ const history = [...assistantConversation.querySelectorAll('.message')]
         gtag('js', new Date());
         gtag('config', 'G-88HQGNRZE5');
     }
-    const consent = localStorage.getItem('cookie_consent');
+    const consent = getConsent();
+    try { if (consent) document.documentElement.classList.remove('cookies-undecided'); } catch (e) {}
+      const assistantBtnEl = document.getElementById('assistant-btn');
+      const scrollTopBtnEl = document.getElementById('scroll-top-btn');
+
+      // Si no hay decisión de cookies todavía, ocultamos los botones flotantes
+      // para que no tapen el banner en móvil (aparecen tras Aceptar o Rechazar).
+      if (!consent) {
+        if (assistantBtnEl) assistantBtnEl.classList.add('is-cookie-blocked');
+        if (scrollTopBtnEl) scrollTopBtnEl.classList.add('is-cookie-blocked');
+      } else {
+        if (assistantBtnEl) assistantBtnEl.classList.remove('is-cookie-blocked');
+        if (scrollTopBtnEl) scrollTopBtnEl.classList.remove('is-cookie-blocked');
+      }
     if (consent === 'accepted') {
         loadAnalytics();
     } else if (!consent) {
@@ -2210,14 +2339,26 @@ const history = [...assistantConversation.querySelectorAll('.message')]
     }
     if (cookieAccept) {
         cookieAccept.addEventListener('click', () => {
-            localStorage.setItem('cookie_consent', 'accepted');
+            setConsent('accepted');
+            try { document.documentElement.classList.remove('cookies-undecided'); } catch (e) {}
+            // Mostrar botones flotantes tras decidir cookies
+            const assistantBtnEl = document.getElementById('assistant-btn');
+            const scrollTopBtnEl = document.getElementById('scroll-top-btn');
+            if (assistantBtnEl) assistantBtnEl.classList.remove('is-cookie-blocked');
+            if (scrollTopBtnEl) scrollTopBtnEl.classList.remove('is-cookie-blocked');
             cookieBanner.remove();
             loadAnalytics();
         });
     }
     if (cookieDecline) {
         cookieDecline.addEventListener('click', () => {
-            localStorage.setItem('cookie_consent', 'declined');
+            setConsent('declined');
+            try { document.documentElement.classList.remove('cookies-undecided'); } catch (e) {}
+            // Mostrar botones flotantes tras decidir cookies
+            const assistantBtnEl = document.getElementById('assistant-btn');
+            const scrollTopBtnEl = document.getElementById('scroll-top-btn');
+            if (assistantBtnEl) assistantBtnEl.classList.remove('is-cookie-blocked');
+            if (scrollTopBtnEl) scrollTopBtnEl.classList.remove('is-cookie-blocked');
             cookieBanner.remove();
         });
     }
@@ -2575,35 +2716,6 @@ function createAction(type, label) {
     return a;
 }
 });
-</script>
-
-<script>
-/* Móvil: si el footer entra en pantalla, levantamos el botón/ventana del asistente para no tapar los enlaces */
-(function(){
-  const mq = window.matchMedia("(max-width: 640px)");
-  const footer = document.querySelector("footer");
-  if(!footer) return;
-
-  let io = null;
-  function enable(){
-    if(io) return;
-    io = new IntersectionObserver((entries)=>{
-      const hit = entries && entries[0] && entries[0].isIntersecting;
-      document.body.classList.toggle("assistant-lift", !!hit);
-    }, { root: null, threshold: 0.01 });
-    io.observe(footer);
-  }
-  function disable(){
-    document.body.classList.remove("assistant-lift");
-    if(io){ io.disconnect(); io = null; }
-  }
-  function refresh(){
-    if(mq.matches) enable(); else disable();
-  }
-  refresh();
-  mq.addEventListener ? mq.addEventListener("change", refresh) : mq.addListener(refresh);
-  window.addEventListener("orientationchange", refresh);
-})();
 </script>
 
 </body>
