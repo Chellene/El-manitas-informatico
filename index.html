@@ -714,7 +714,7 @@
             color: var(--color-text);
             border-top: 1px solid var(--color-border);
             padding: 12px 16px;
-            display: flex;
+            display: none;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
@@ -1807,7 +1807,7 @@ html.light .assistant-btn-icon{
 <!-- Botón flotante para subir al inicio -->
 <div class="scroll-top-btn" id="scroll-top-btn"><span class="scroll-top-icon" aria-hidden="true"></span></div>
 <!-- Banner de cookies -->
-<div class="cookie-banner" id="cookie-banner" >
+<div class="cookie-banner" id="cookie-banner" style="display:none">
 <span>Utilizamos cookies propias y de terceros para analizar el tráfico y mejorar la experiencia. Puedes aceptarlas o rechazarlas.</span>
 <button id="cookie-accept">Aceptar</button>
 <button id="cookie-decline">Rechazar</button>
@@ -2318,6 +2318,11 @@ const history = [...assistantConversation.querySelectorAll('.message')]
         gtag('config', 'G-88HQGNRZE5');
     }
     const consent = getConsent();
+
+    // Si ya hay decisión guardada, nos aseguramos de que el banner no se muestre nunca.
+    if (cookieBanner && consent) {
+        cookieBanner.style.display = 'none';
+    }
     try { if (consent) document.documentElement.classList.remove('cookies-undecided'); } catch (e) {}
       const assistantBtnEl = document.getElementById('assistant-btn');
       const scrollTopBtnEl = document.getElementById('scroll-top-btn');
